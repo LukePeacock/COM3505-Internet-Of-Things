@@ -76,8 +76,10 @@ IDF or the latest version of the Arduino IDE.)
 
 - check out your repository from gitlab into your own file space
     - `git clone ...url...`, for example `git clone
-      https://gitlab.com/YourGitLabId/com3505-2019-student.git`
-    - Note: **don't "download"** from gitlab, you need to "clone".
+      https://gitlab.com/YourGitLabUname/com3505-2019-student.git`
+    - **don't "download"** from gitlab, you need to "clone".
+    - **don't change your path on gitlab** or our scripts won't find your
+      repository
 
 **Other useful commands**:
 
@@ -110,7 +112,7 @@ of the repository (in your home directory):
 ```bash
 cd
 mv com3505-student-2019 saved-repo
-git clone https://gitlab.com/YourGitLabId/com3505-2019-student.git
+git clone https://gitlab.com/YourGitLabUname/com3505-2019-student.git
 ```
 
 You've now got a fresh copy to work with; if you have changes in the saved

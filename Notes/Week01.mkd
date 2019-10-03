@@ -25,7 +25,7 @@ this is optional.
 # Assignments
 
 - You should have already created a Git repository for the course and sent us
-  your GitLab ID (see [the week 0
+  your GitLab user name (see [the week 0
   notes](https://gitlab.com/hamishcunningham/unphone/blob/master/doc/com3505/Week00.mkd)).
   If not **do it now!!!**
 - [Get into a pair](Week01/Pairs.mkd) for the lab work and practical
@@ -35,8 +35,9 @@ this is optional.
   practice breadboarding, soldering and using a multimeter: (**please pay
   particular attention to the safety protocols for the electronics lab
   described there**).
-- [Set up your programming environment](Week01/Setup.mkd) and try burning a
-  sketch to your ESP32.
+- [Set up your programming environment](Week01/Setup.mkd) and try burning the
+  "Blink" sketch to your ESP32 (from `File>Examples>01.Basics>Blink` in the
+  IDE).
 
 
 # First Lab Checklist
@@ -47,8 +48,9 @@ this is optional.
   project hardware (to keep!) in week 6.
 - Always use the Linux option when booting machines in the electronics lab.
 - When you've got your environment set up properly, `ssh -AX lincomp` will log
-  you into a compile server, and `cd ~/unphone; make arduino-ide` will run the
-  IDE for you.
+  you into a compile server; and `cd ~/unphone; make arduino-ide` will run the
+  IDE for you. (Problem? Email me your account name; perhaps you weren't
+  registered when we set up access to the servers.)
 - Work through the four assignments above.
 - Finished? Learn a little C! See the resources listed in the lecture slides
   for help.
@@ -73,6 +75,7 @@ this is optional.
   (which counts for 40% of your mark).
 - There is no lecture in Week 6 (reading week and lab assessment 1) or Week 12
   (lab assessment 2 and exam week).
+
 
 
 # Reading
