@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 45;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 46;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -87,7 +87,7 @@ void setup() {
     _GITLAB_TOKEN,
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
-  Serial.printf("Device is now running v%d\n", firmwareVersion);
+  Serial.printf("firmware is now running v%d\n", firmwareVersion);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
@@ -98,6 +98,12 @@ void loop() {
 
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
+    joinmeOTAUpdate(
+      firmwareVersion, _GITLAB_PROJ_ID,
+      // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
+      _GITLAB_TOKEN,
+      "MyPro+UpdThingIDF%2Ffirmware%2F"
+    );
     printIPs();
   }
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
