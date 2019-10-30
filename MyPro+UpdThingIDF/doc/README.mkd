@@ -1,75 +1,26 @@
 My documentation for COM3505 assessment 1 (MyPro+UpdThing)
 ===
+## Provisioning and OTA
+**What is the purpose of provisioning? and (over-the-air) updating?**
+Provisioning is the process of connecting a new (WiFi) device to a WiFi network; it involves loading the SSID and login credentials for the network to allow the device to connect. 
 
-## Main.cpp
+Over-the-air updating allows the device firmware to be updated without having direct access to the device. This means that if the device detects a new firmware version in the cloud, it can download and install the new firmware version without the user needing phsyical access to the device.
 
-### void setup()
-This function sets the baud rate and prints some lines to the serial output, including the MAC address. It then sets the input and output pins; get a network connection via `joinmeManageWiFi`, initialise a web server, and check for possible firmware updates via `joinmeOTAUpdate`.
+**How has `MyPro+UpdThingIDF` chosen to implement these functions?**
+Provisioning and OTA updating are handled by functions in the files `joinme-2019.cpp` and `joinme-wfmgr-2019.cpp`. 
 
-### void loop()
-This function simply outputs some debug code and prints the IPs for the device. It then waits for a delay period before iterating again.
+The first of these files `joinme-2019.cpp` handles web page redirects and over-the-air updating; these functions check the current firmware version number against the version number in the cloud; if they match then no action takes place. If they do not match, then these functions will download the new firmware from git and installs it. Several output messages and a progress bar are displayed on the serial line. 
 
-### void getMAC(char *buf)
-This function gets and returns the device MAC address
+Provisioning first takes place in the `joinme-wfmgr-2019.cpp` file. This includes functions for creating the captive portal when the device is not connected to a network, and allowing the user to reset the device and/or connect to a network. Other WiFi provisioning functions exist in `main.cpp` which starts the web server, registers the page handlers, and includes a function for choosing a new WiFi network.
 
-## void printIPs()
-This function prints the device IP addresses including access point IP, local IP, and access point SSID
+## Security
+**How Secure is the Implementation?**
+The implementation not secure at all. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
 
-### void getHTML(String& html, const char *boiler[], int biolerLen, replacement_t repls[], int replsLen)
+Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port.
 
-This function will replace biolerplate html code with replacements where applicable.
+## Efficiency
 
-### void initWebServer()
-This function sets the web server actions for a set of addresses. It includes 404 page handling, as well as possible android captive portal pages. Once handlers are set, the web server is started and output send over serial line.
+## Bugs and Improvements
 
-### void hndleNotFound(AsyncWebServerRequest *request)
-Handler for 404 error. Outputs debug code on serial and `URI Not found` message in browser
-
-### void hndleRoot(AsyncWebServerRequest *request)
-page handler for root page. Replaces some of the boilerplate html code with links to `choose an access point` page and `wifi status` page. Then renders the page in browser.
-
-### void hndlWifi(AsyncWebServerRequest *request)
-Page handler for choosing an access point. Creates form for choosing an access point and replaces some boilerplate html code to display the form.
-
-### void hndleWifichz(AsyncWebServerRequest *request)
-Page handler for form submission. Replaces some boilerplate html code to display message to indicate you are joining a network, and adds a link to `wifi status` page. It then checks the form fields to see if an access point with the supplied SSID and key exist, if one exists, then it connects. Otherwise, it displays an error message.
-
-### void hndlStatus(ASyncWebServerRequest *request)
-Page handler for `wifi status` page. Creates string containing network SSID, status, local op, access point ip, and access point SSID. Then replaces some boilerplate code to display the information in the browser.
-
-### void apListForm(String& f)
-This is a utility to create a form for connecting to a new access point. Takes a string `f` and scans all networks. If no networks are found, displays error message. Otherwise it will create a form with radio buttons to choose a network. There is then a text input for the passkey for the chosen network; and a submit button. This is all stored in the `f` string since it is passed as a reference and not an object.
-
-### String ip2str(IPAddress address)
-This function returns the IP address as a string
-
-
-## JoinMe-2019.cpp
-
-### void doRedirect(AsyncWebServerRequest *request)
-Redirects the user to the specified page. 
-
-### void handleL0(AsyncWebServerRequest *request)
-handler for L0, redirects to requested page
-
-### void handleL2(AsyncWebServerRequest *request)
-handler for L2, redirects to requested page
-
-### void handleALL(AsyncWebServerRequest *request)
-handler for all pages. Redirects to requested page
-
-### void joinmeDNSSetup(void* server_p, IPAddress apIP)
-This function sets up the dns server captive portal for android and other devices.
-
-### void joinmeTurn()
-Processes next dns request
-
-### void joinmeOTAUpdate(int firmwareVersion, String gitProjID, String gitToken, String fileName)
-Used for OTA updates. This function manages https requests and keeps the http server alive until update is complete. If a `gitToken` is supplied, it uses the API, otherwise it used the RAW files. The function then checks for a firmware update by reading the version file from the cloud and stores the latest version if the request is successful. If the cloud firmware version and flashed firmware version match, no update takes place. If they don't match, this function gets the `.bin` file, calls the `joinMeCloudGet` function to return a response code. If the update file is too small or a response code is not returned, error message are displayed on serial line. A new version of the firmware if then created by calling the `Update.writeStream(*stream)` function. If the length of the stream is equal to or greater than original length, update is successful; otherwise an error message is displayed. One of several output messages is then sent down the serial line. 
-
-
-### int joinMeCloudGet(HTTPClient *http, String gitProjID, string gitToken, String fileName)
-Used for downloading OTA updates via HTTP Get. This function creates the URL from components `gitToken` `gitProjID` and `fileName`. Once created, it prints the URL down the serial line and begins a http service `gitlabRootCA`. It then returns the result of `HTTP->GET()`
-
-### void handleOTAProgress(size_t done, size_t total)
-Takes two parameters: `done` and `total` and calculates the percentage of the OTA that has been completed. It then calculated the length of a bar and prints down the serial line the progress. Since `printf` is used in conjunction with `\r`, the cursor will remain on the same line and therefore overwrite the line each time it prints, this creates the effect of a moving progress bar.
+## Programming Style

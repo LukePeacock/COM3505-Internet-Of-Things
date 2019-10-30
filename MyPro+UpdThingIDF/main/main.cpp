@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 44;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 45;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -87,7 +87,7 @@ void setup() {
     _GITLAB_TOKEN,
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
-  Serial.printf("now running v%d\n", firmwareVersion);
+  Serial.printf("Device is now running v%d\n", firmwareVersion);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
