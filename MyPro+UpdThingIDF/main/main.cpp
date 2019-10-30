@@ -120,7 +120,7 @@ void loop() {
     //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
   #endif
   if (touch_filter_value < 400)
-      println("Touch!");
+      printf("Touch!");
   touch_pad_deinit();
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
