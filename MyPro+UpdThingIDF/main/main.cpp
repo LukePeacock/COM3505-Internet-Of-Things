@@ -108,8 +108,8 @@ void loop() {
     #if TOUCH_FILTER_MODE_EN
         touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
     #endif
-    uint16_t touchVal;
-    uint16_t touchFilterVal;
+    uint16_t touch_value;
+    uint16_t touch_filter_value;
     #if TOUCH_FILTER_MODE_EN
         printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
         // If open the filter mode, please use this API to get the touch pad count.
