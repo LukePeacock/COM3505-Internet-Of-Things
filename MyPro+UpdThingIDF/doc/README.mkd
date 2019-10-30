@@ -37,3 +37,7 @@ Some networks contain firewalls to prevent such attacks, these will restrict net
 # Possible Enhancements
 
 **Power Usage** 
+
+**Security Vulnerabilities**
+
+**Different Sensors**
