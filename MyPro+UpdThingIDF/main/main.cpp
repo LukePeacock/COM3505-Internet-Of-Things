@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 47;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 48;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -104,6 +104,7 @@ void setup() {
 void loop() {
   int sliceSize = 500;
  
+    Serial.printf("Touch Sensor Begin");
   touch_pad_init();
   touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
   touch_pad_config(TOUCH_PAD_NUM0, TOUCH_THRESH_NO_USE);
