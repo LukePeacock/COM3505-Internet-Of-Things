@@ -88,6 +88,10 @@ void setup() {
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
   Serial.printf("firmware is now running v%d\n", firmwareVersion);
+
+  touch_pad_init();
+  touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
+  touch_pad_config(TOUCH_PAD_NUM1, TOUCH_THRES_NO_USE);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
@@ -95,6 +99,20 @@ void setup() {
 // LOOP: task entry point ///////////////////////////////////////////////////
 void loop() {
   int sliceSize = 500;
+ 
+    #if TOUCH_FILTER_MODE_EN
+        touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
+    #endif
+    uint16_t touchVal;
+    uint16_t touchFilterVal;
+    #if TOUCH_FILTER_MODE_EN
+        printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
+        // If open the filter mode, please use this API to get the touch pad count.
+        touch_pad_read_raw_data(i, &touch_value);
+        touch_pad_read_filtered(i, &touch_filter_value);
+        printf("T%d:[%4d,%4d] ", i, touch_value, touch_filter_value);
+    #endif
+    printf("\n");
 
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
@@ -106,6 +124,7 @@ void loop() {
 //    );
     printIPs();
   }
+    touch_pad_deinit();
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
 }
 
