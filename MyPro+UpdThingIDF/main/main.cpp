@@ -87,7 +87,7 @@ void setup() {
     _GITLAB_TOKEN,
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
-
+  Serial.printf("now running v%d\n", firmwareVersion);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
