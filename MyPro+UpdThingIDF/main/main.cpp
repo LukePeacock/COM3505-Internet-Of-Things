@@ -98,12 +98,12 @@ void loop() {
 
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
-    joinmeOTAUpdate(
-      firmwareVersion, _GITLAB_PROJ_ID,
-      // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
-      _GITLAB_TOKEN,
-      "MyPro+UpdThingIDF%2Ffirmware%2F"
-    );
+//    joinmeOTAUpdate(
+//      firmwareVersion, _GITLAB_PROJ_ID,
+//      // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
+//      _GITLAB_TOKEN,
+//      "MyPro+UpdThingIDF%2Ffirmware%2F"
+//    );
     printIPs();
   }
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
