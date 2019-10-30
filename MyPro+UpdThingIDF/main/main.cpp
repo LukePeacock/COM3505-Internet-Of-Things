@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 46;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 47;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
