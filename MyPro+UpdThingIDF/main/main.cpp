@@ -119,10 +119,7 @@ void loop() {
     touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
     //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
   #endif
-  if (touch_filter_value < 400)
-      printf("Touch!");
-  touch_pad_deinit();
-  if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
+  if(touch_filter_value < 400 && loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
 //    joinmeOTAUpdate(
 //      firmwareVersion, _GITLAB_PROJ_ID,
@@ -131,6 +128,7 @@ void loop() {
 //      "MyPro+UpdThingIDF%2Ffirmware%2F"
 //    );
     printIPs();
+      touch_pad_deinit();
   }
   
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
