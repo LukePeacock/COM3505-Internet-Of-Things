@@ -2,25 +2,38 @@ My documentation for COM3505 assessment 1 (MyPro+UpdThing)
 ===
 ## Provisioning and OTA
 **What is the purpose of provisioning? and (over-the-air) updating?**
-Provisioning is the process of connecting a new (WiFi) device to a WiFi network; it involves loading the SSID and login credentials for the network to allow the device to connect. 
+Provisioning is the process of connecting a new (WiFi) device to a new WiFi network; it involves loading the SSID and login credentials for the network to allow the device to connect. 
 
 Over-the-air updating allows the device firmware to be updated without having direct access to the device. This means that if the device detects a new firmware version in the cloud, it can download and install the new firmware version without the user needing phsyical access to the device.
 
 **How has `MyPro+UpdThingIDF` chosen to implement these functions?**
 Provisioning and OTA updating are handled by functions in the files `joinme-2019.cpp` and `joinme-wfmgr-2019.cpp`. 
 
-The first of these files `joinme-2019.cpp` handles web page redirects and over-the-air updating; these functions check the current firmware version number against the version number in the cloud; if they match then no action takes place. If they do not match, then these functions will download the new firmware from git and installs it. Several output messages and a progress bar are displayed on the serial line. 
+The first of these files `joinme-2019.cpp` handles web page redirects and over-the-air updating; OTA updating only occurs if the device is connected to a WiFi network and has an internet connection. The function `joinmeOTAUpdate` checks the current firmware version number against the version number on gitlab; if they match then no action takes place. If they do not match, then this function will download the new firmware from git and installs it. Several output messages and a progress bar are displayed on the serial line.  When the project is compiled a `.bin` file is created which is stored in `firmware/<<version>>.bin`; this file name is what gets checked against the `main.cpp` class variable `firmwareVersion` by the `joinmeOTAUpdate` function. OTA updates can only be triggered by restarting the device.
 
-Provisioning first takes place in the `joinme-wfmgr-2019.cpp` file. This includes functions for creating the captive portal when the device is not connected to a network, and allowing the user to reset the device and/or connect to a network. Other WiFi provisioning functions exist in `main.cpp` which starts the web server, registers the page handlers, and includes a function for choosing a new WiFi network.
+When the device is started, it calls the function `joinmeManageWiFi`in the `joinme-wfmgr-2019.cpp` file. This function checks if the device has been configured and tries to connect to the network. If this fails, it creates is own access point as a captive portal with a list of networks. When the user chooses a network and provides the correct credentials, the device connects to the network and shuts down its own access point. 
 
 ## Security
 **How Secure is the Implementation?**
 The implementation not secure at all. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
 
-Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port.
+Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port. The ESP chip uses the EAP protocol to communicate over WiFi, this protocol is easily bypassed. This security risk actually means that the device is more secure when using WAP2 than the (usually more secure) EAP. WiFi spoofing is also a possibility if somebody can create a network with the same credentials and spoof the access point, they would have access to all network traffic. This is usually only an issue on open or public networks though. Gitlab downloads use `https` rather than `http` which can pervent some types of attack.
 
 ## Efficiency
+**How Efficient is the Implementation?**
 
 ## Bugs and Improvements
+**Are There [M]any bugs?**
+
+**How might it be improved?**
+
 
 ## Programming Style
+**What is the Dominant Programming Style? What are its advantages and disadvantages?**
+
+
+
+
+# Possible Enhancements
+
+**Power Usage** 
