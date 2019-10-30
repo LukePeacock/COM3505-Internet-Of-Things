@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 50;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 51;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -84,16 +84,28 @@ void setup() {
   initWebServer();
   Serial.printf("firmware is at version %d\n", firmwareVersion);
 
+  
   // check for and perform firmware updates as needed
   vTaskDelay(2000 / portTICK_PERIOD_MS); // let wifi settle
-  joinmeOTAUpdate(
-    firmwareVersion, _GITLAB_PROJ_ID,
-    // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
-    _GITLAB_TOKEN,
-    "MyPro+UpdThingIDF%2Ffirmware%2F"
-  );
-  Serial.printf("firmware is now running v%d\n", firmwareVersion);
-
+    
+  //initialise touch sensor and get value
+  touch_pad_init();
+  touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
+  touch_pad_config(TOUCH_PAD_NUM0, TOUCH_THRESH_NO_USE);
+  #if TOUCH_FILTER_MODE_EN
+    touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
+  #endif
+  uint16_t touch_filter_value;
+  touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
+  if (touch_filter_value < 400) {
+      joinmeOTAUpdate(
+        firmwareVersion, _GITLAB_PROJ_ID,
+        // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
+        _GITLAB_TOKEN,
+        "MyPro+UpdThingIDF%2Ffirmware%2F"
+      );
+      Serial.printf("firmware is now running v%d\n", firmwareVersion);
+  }
 
   
   delay(300); blink(3);         // signal we've finished config
@@ -104,14 +116,7 @@ void setup() {
 void loop() {
   int sliceSize = 500;
  
-  touch_pad_init();
-  touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
-  touch_pad_config(TOUCH_PAD_NUM0, TOUCH_THRESH_NO_USE);
-  #if TOUCH_FILTER_MODE_EN
-    touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
-  #endif
-  uint16_t touch_value;
-  uint16_t touch_filter_value;
+  
   #if TOUCH_FILTER_MODE_EN
    // printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
     // If open the filter mode, please use this API to get the touch pad count.
@@ -128,7 +133,6 @@ void loop() {
 //      "MyPro+UpdThingIDF%2Ffirmware%2F"
 //    );
     printIPs();
-      touch_pad_deinit();
   }
   
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
