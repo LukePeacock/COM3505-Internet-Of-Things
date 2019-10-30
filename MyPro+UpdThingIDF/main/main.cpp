@@ -113,8 +113,8 @@ void loop() {
     #if TOUCH_FILTER_MODE_EN
         printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
         // If open the filter mode, please use this API to get the touch pad count.
-        touch_pad_read_raw_data(TOUCH_PAD_NUM1, &touch_value);
-        touch_pad_read_filtered(TOUCH_PAD_NUM1, &touch_filter_value);
+        touch_pad_read_raw_data(TOUCH_PAD_NUM1, touch_value);
+        touch_pad_read_filtered(TOUCH_PAD_NUM1, touch_filter_value);
         printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM1, touch_value, touch_filter_value);
     #endif
     printf("\n");
