@@ -29,7 +29,7 @@ void apListForm(String&);
 void printIPs();
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 48;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 49;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -104,7 +104,6 @@ void setup() {
 void loop() {
   int sliceSize = 500;
  
-    Serial.printf("Touch Sensor Begin");
   touch_pad_init();
   touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
   touch_pad_config(TOUCH_PAD_NUM0, TOUCH_THRESH_NO_USE);
@@ -114,12 +113,14 @@ void loop() {
   uint16_t touch_value;
   uint16_t touch_filter_value;
   #if TOUCH_FILTER_MODE_EN
-    printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
+   // printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
     // If open the filter mode, please use this API to get the touch pad count.
     touch_pad_read_raw_data(TOUCH_PAD_NUM0, &touch_value);
     touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
-    printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
+    //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
   #endif
+  if (touch_filter_value < 400)
+      println("Touch!");
   touch_pad_deinit();
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
