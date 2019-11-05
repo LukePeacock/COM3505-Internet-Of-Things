@@ -27,9 +27,10 @@ void hndlStatus(AsyncWebServerRequest *);
 void hndlWifi(AsyncWebServerRequest *);
 void apListForm(String&);
 void printIPs();
+void getAPs(uint16_t&);
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 51;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 52;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -46,7 +47,7 @@ String apSSID = String("Pro+UpdThing-"); // SSID of the AP
 String apPassword = _DEFAULT_AP_KEY;     // passkey for the AP
 AsyncWebServer* webServer;               // async web server
 String ip2str(IPAddress);                // helper for printing IP addresses
-
+uint16_t networkCount;  //result of WiFi.scanNetworks()
 // web server utils /////////////////////////////////////////////////////////
 // the replacement_t type definition allows specification of a subset of the
 // "boilerplate" strings, so we can e.g. replace only the title, or etc.
@@ -97,7 +98,7 @@ void setup() {
   #endif
   uint16_t touch_filter_value;
   touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
-  if (touch_filter_value < 400) {
+  if (touch_filter_value < 500) {
       joinmeOTAUpdate(
         firmwareVersion, _GITLAB_PROJ_ID,
         // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
@@ -107,7 +108,7 @@ void setup() {
       Serial.printf("firmware is now running v%d\n", firmwareVersion);
   }
 
-  
+  getAPs(networkCount);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
@@ -123,17 +124,13 @@ void loop() {
     touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
     //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
   #endif
-  if(touch_filter_value < 400 && loopIteration++ % sliceSize == 0) { // every sliceSize iterations
+  if(touch_filter_value < 500 && loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
-//    joinmeOTAUpdate(
-//      firmwareVersion, _GITLAB_PROJ_ID,
-//      // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
-//      _GITLAB_TOKEN,
-//      "MyPro+UpdThingIDF%2Ffirmware%2F"
-//    );
     printIPs();
   }
-  
+    if (loopIteration % 200 == 0){
+        getAPs(networkCount);
+    }
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
 }
 
@@ -333,18 +330,19 @@ void hndlStatus(AsyncWebServerRequest *request) { // UI to check connectivity
 }
 void apListForm(String& f) { // utility to create a form for choosing AP
   const char *checked = " checked";
-  int n = WiFi.scanNetworks();
-  dbg(netDBG, "scan done: ");
+  
+  //int n = WiFi.scanNetworks();
+ // dbg(netDBG, "scan done: ");
 
-  if(n == 0) {
+  if(networkCount == 0) {
     dln(netDBG, "no networks found");
     f += "No wifi access points found :-( ";
     f += "<a href='/'>Back</a><br/><a href='/wifi'>Try again?</a></p>\n";
   } else {
-    dbg(netDBG, n); dln(netDBG, " networks found");
+    dbg(netDBG, networkCount); dln(netDBG, " networks found");
     f += "<p>Wifi access points available:</p>\n"
          "<p><form method='POST' action='wifichz'> ";
-    for(int i = 0; i < n; ++i) {
+    for(int i = 0; i < networkCount; ++i) {
       f.concat("<input type='radio' name='ssid' value='");
       f.concat(WiFi.SSID(i));
       f.concat("'");
@@ -361,6 +359,12 @@ void apListForm(String& f) { // utility to create a form for choosing AP
     f += "<input type='submit' value='Submit'></form></p>";
   }
 }
+
+void getAPs(uint16_t &n){ // utility to get a list of access points and store them.
+    n = WiFi.scanNetworks();
+    dln(netDBG, "scan done: ");
+}
+
 String ip2str(IPAddress address) { // utility for printing IP addresses
   return
     String(address[0]) + "." + String(address[1]) + "." +
