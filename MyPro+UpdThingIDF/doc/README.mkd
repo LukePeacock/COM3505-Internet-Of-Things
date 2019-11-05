@@ -30,12 +30,11 @@ Caching the access point is not particularly efficient for this implementation s
 There are almost no obvious bugs in the code, although further testing may reveal some. We did complete manual testing and found that there is a floating value which is returned from the `joinMeManageWifi` function that is never used. The function returns a boolean depending on if the device connects to a network, but the boolean is never used outside of the function which returns it. 
 
 **How might it be improved?**
-
+An obvious improvement would be to increase the timeout delay when trying to connect to a network after a reset. Sometimes the 15 second timeout delay is not enough and the user has to manually connect to the same network. This is especially obvious in an area with lots of networks.
 
 ## Programming Style
 **What is the Dominant Programming Style? What are its advantages and disadvantages?**
-
-
+The program in general uses the generic programming style but also makes use of some object oriented abilties. 
 
 
 # Possible Enhancements
