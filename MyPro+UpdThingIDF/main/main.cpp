@@ -30,7 +30,7 @@ void printIPs();
 void getAPs(uint16_t&);
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 52;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 53;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -128,9 +128,9 @@ void loop() {
     dln(otaDBG, "OTA loop");
     printIPs();
   }
-    if (loopIteration % 200 == 0){
-        getAPs(networkCount);
-    }
+  if (loopIteration % 200 == 0){
+    getAPs(networkCount);
+  }
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
 }
 
@@ -362,7 +362,7 @@ void apListForm(String& f) { // utility to create a form for choosing AP
 
 void getAPs(uint16_t &n){ // utility to get a list of access points and store them.
     n = WiFi.scanNetworks();
-    dln(netDBG, "scan done: ");
+    dln(netDBG, "Access Point scan done.");
 }
 
 String ip2str(IPAddress address) { // utility for printing IP addresses
