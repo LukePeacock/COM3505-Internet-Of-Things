@@ -49,8 +49,8 @@ The current implementation does not automatically do OTA updates. This is insecu
 
 
 
-**How does the ESP-S2 improve the security profile?** 
-
+**How does the ESP32-S2 improve the security profile?** 
+The original ESP32 uses 1024-bit OTP secure boot flash encryption, whereas the ESP32-S2 used 4096-bit OTP secure boot flash encryption. Using a higher bit count for the OTP secure boot means data is more protected from begin accessed by unauthorised personnel.
 
 ### Different Sensors
 **What might change if different sensors were connected to the ESP32?**
