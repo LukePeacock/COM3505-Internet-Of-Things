@@ -15,15 +15,19 @@ When the device is started, it calls the function `joinmeManageWiFi`in the `join
 
 ## Security
 **How Secure is the Implementation?**
-The implementation not secure at all. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
+The implementation not very secure. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
 
-Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port. The ESP chip uses the EAP protocol to communicate over WiFi, this protocol is easily bypassed. This security risk actually means that the device is more secure when using WAP2 than the (usually more secure) EAP. WiFi spoofing is also a possibility if somebody can create a network with the same credentials and spoof the access point, they would have access to all network traffic. This is usually only an issue on open or public networks though. Gitlab downloads use `https` rather than `http` which can pervent some types of attack.
+Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port. WiFi spoofing is also a possibility if somebody can create a network with the same credentials and spoof the access point, they would have access to all network traffic. This is usually only an issue on open or public networks though. Gitlab downloads use `https` rather than `http` which can pervent some types of attack. This firmware uses the WPA encryption to authenticate and connect to a network.
+
 
 ## Efficiency
 **How Efficient is the Implementation?**
+Caching the access point is not particularly efficient for this implementation since it takes energy and memory to do this every `X` seconds instead of just scanning when the user wants to change access point. The original implementation of scanning for access points was more efficient, and uses less memory and energy.
+
 
 ## Bugs and Improvements
 **Are There [M]any bugs?**
+There are almost no obvious bugs in the code, although further testing may reveal some. We did complete manual testing and found that there is a floating value which is returned from the `joinMeManageWifi` function that is never used. The function returns a boolean depending on if the device connects to a network, but the boolean is never used outside of the function which returns it. 
 
 **How might it be improved?**
 
@@ -36,8 +40,19 @@ Some networks contain firewalls to prevent such attacks, these will restrict net
 
 # Possible Enhancements
 
-**Power Usage** 
+### Power Usage
+**What levels of power usage are expected during provisioning and updating? What mechanisms do we have to reduce power consumption?**
+Slightly higher levels of power consumption are to be expected during provisioning and updating. There is not much we can do to reduce this since these actions are necessary to connect to a network and update the firmware. Slightly higher power consumption also takes place when refreshing the AP cache every 2 seconds, this can be mitigated by either refreshing the AP cache less often, or only updating it when the user wants to change access point.
 
-**Security Vulnerabilities**
+### Security Vulnerabilities
+**What risidual security vulneratibilities does the firmware have? How can we fix them?**
+The current implementation does not automatically do OTA updates. This is insecure if a vulnerability is found and the user doesn't update the device. You'd solve it by making the OTA update automatic by checking for a new firmware version every `X` number of seconds/minutes.
 
-**Different Sensors**
+
+
+**How does the ESP-S2 improve the security profile?** 
+
+
+### Different Sensors
+**What might change if different sensors were connected to the ESP32?**
+We don't believe that much would change in the system if a motion sensor or accelerometer was connected. Provided that the device remained stationary while connecting to the network we believe everything everything would correctly (sometimes the device will not connect if the access point and/or device is moving while trying to connect).
