@@ -108,7 +108,7 @@ void setup() {
       Serial.printf("firmware is now running v%d\n", firmwareVersion);
   }
 
-  getAPs(networkCount);
+  //getAPs(networkCount);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
