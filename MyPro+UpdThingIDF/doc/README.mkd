@@ -19,11 +19,12 @@ The implementation not very secure. While the device is not connected to a WiFi 
 
 Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port. WiFi spoofing is also a possibility if somebody can create a network with the same credentials and spoof the access point, they would have access to all network traffic. This is usually only an issue on open or public networks though. Gitlab downloads use `https` rather than `http` which can pervent some types of attack. This firmware uses the WPA encryption to authenticate and connect to a network.
 
+Anyone with physical access to the device can flash their own firmware to it, this can be used to deploy malware and viruses on the network. Therefore the device would need a restriction on physical access from the public. Alternatively some type of 2 factor authentication when trying to flash to the device could use an attached sensor to enable/disable firmware updates.
+
 
 ## Efficiency
 **How Efficient is the Implementation?**
 Caching the access point is not particularly efficient for this implementation since it takes energy and memory to do this every `X` seconds instead of just scanning when the user wants to change access point. The original implementation of scanning for access points was more efficient, and uses less memory and energy.
-
 
 ## Bugs and Improvements
 **Are There [M]any bugs?**
@@ -34,7 +35,9 @@ An obvious improvement would be to increase the timeout delay when trying to con
 
 ## Programming Style
 **What is the Dominant Programming Style? What are its advantages and disadvantages?**
-The program in general uses the generic programming style but also makes use of some object oriented abilties. 
+The main programming style is C-style programming, because it uses many C methods such as `c_str()`, but it also incorporates parts of object-oriented, generic, and data abstraction. Keeping C-style programming as the dominant style maintains flexibility within the program and ensures the program remains efficient in a general context. Using C-style programming, and in general C++, means that there is very little memory management, which means there could be memory leaks and other undefined behaviour. This is because there is no automatic garbage collector, unless the user writes one.
+
+http://www.informit.com/articles/article.aspx?p=25000
 
 # Included Enhancements
 **Touch Sensor** 
@@ -42,10 +45,6 @@ We implemented the touch sensor using the GPIO 4 pin with a wire attached. This 
 
 **Cached Access Points**
 Access Points are cached every 200 iterations of the loop by the system. When this occurs, the `getAPs` function is called in `main.cpp`; this function will scan for networks using `Wifi.scanNetworks()` and return a number. This number identifies how many access points the device can detect. When the user wants to change access point by via the `APListForm` function, the access points are already cached, and information is retrieved from the `WiFi` object.
-
-**ESP IDF OTA API**
-
-
 
 # Possible Enhancements
 
@@ -62,6 +61,9 @@ The current implementation does not automatically do OTA updates. This is insecu
 **How does the ESP32-S2 improve the security profile?** 
 The original ESP32 uses 1024-bit OTP secure boot flash encryption, whereas the ESP32-S2 used 4096-bit OTP secure boot flash encryption. Using a higher bit count for the OTP secure boot means data is more protected from begin accessed by unauthorised personnel.
 
+The original ESP32  contains AES, SHA-2, RSA, ECC, RNG crypto capabilities; the new ESP32-S2 contains AES-128/192/256, SHA-2, RSA, RNG, HMAC, Digital Signature crypto. This means that information stored on and used by the device is more secure; the new ESP32-S2 has more cryptographic capabilities including more secure algorithms which are harder to crack.
+
+
 ### Different Sensors
-**What might change if different sensors were connected to the ESP32?**
-We don't believe that much would change in the system if a motion sensor or accelerometer was connected. Provided that the device remained stationary while connecting to the network we believe everything everything would correctly (sometimes the device will not connect if the access point and/or device is moving while trying to connect).
+**What might change if a motion sensor was connected to the ESP32?**
+Provided that the device remained stationary while connecting to the network and/or updating we believe everything would work correctly (sometimes the device will not connect if the access point and/or device is moving while trying to connect). This could be solved by only connecting / updating when the motion sensor is not detecting motion, which ensures a stable WiFi connection.
