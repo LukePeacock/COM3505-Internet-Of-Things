@@ -51,6 +51,9 @@ We implemented the touch sensor using the GPIO 4 analog pin with a wire attached
 **Cached Access Points**
 Access Points are cached every 200 iterations of the loop by the system. When this occurs, the `getAPs` function is called in `main.cpp`; this function will scan for networks using `Wifi.scanNetworks()` and return a number. This number identifies how many access points the device can detect. When the user wants to change access point by via the `APListForm` function, the access points are already cached, and information is retrieved from the `WiFi` object.
 
+**OTA update using IDF API**
+We could not rewrite the current OTA update process using IDF API as the current implementation is using Arduino IDE libraries that are having conflicting methods with IDF API. In case where we would have re written OTA update, we would have needed to rewrite the whole program.
+
 # Possible Enhancements
 
 ### Power Usage
