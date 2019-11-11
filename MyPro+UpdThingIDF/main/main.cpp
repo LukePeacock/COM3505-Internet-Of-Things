@@ -98,14 +98,13 @@ void setup() {
   #endif
   uint16_t touch_filter_value;
   touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
-  if (touch_filter_value < 500) {
-      joinmeOTAUpdate(
-        firmwareVersion, _GITLAB_PROJ_ID,
-        // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
-        _GITLAB_TOKEN,
-        "MyPro+UpdThingIDF%2Ffirmware%2F"
-      );
-      Serial.printf("firmware is now running v%d\n", firmwareVersion);
+  joinmeOTAUpdate(
+    firmwareVersion, _GITLAB_PROJ_ID,
+    // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
+    _GITLAB_TOKEN,
+    "MyPro+UpdThingIDF%2Ffirmware%2F"
+  );
+  Serial.printf("firmware is now running v%d\n", firmwareVersion);
   }
 
   //getAPs(networkCount);
@@ -124,10 +123,16 @@ void loop() {
     touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
     //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
   #endif
-  if(touch_filter_value < 500 && loopIteration++ % sliceSize == 0) { // every sliceSize iterations
+  if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
     printIPs();
   }
+    // Display message if touch sensor active every 100 iterations
+  if (loopIteration % 100 = 0 && touch_filter_value < 500)
+  {
+    Serial.printf("Touch Sensor Active!");
+  }
+    // Refresh APs every 200 iterations
   if (loopIteration % 200 == 0){
     getAPs(networkCount);
   }
