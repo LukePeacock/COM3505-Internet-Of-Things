@@ -67,9 +67,8 @@ The main programming style is C-style programming, because it uses many C method
 http://www.informit.com/articles/article.aspx?p=25000 - a reference to an article about C++ programming styles and libraries.
 
 # Included Enhancements
-
-**Touch Sensor**
-We implemented the touch sensor using the GPIO 4 analog pin with a wire attached. This analog input produces a signal which is high when not touched and gets lower when touched. If the user was to hold the unattached end of the wire, the signal would drop below 500. We set this threshold since there must be a user touching the wire for it to register below this value - preventing any noise from having an effect. In order to update the device, the user must hold the wire during the bootup process until the device states it is checking for updates, at this point they may let go. In order to run the OTA loop, the user must be holding the wire. The setup for the touch sensor takes place in the `Setup` method in `main.cpp`.
+**Touch Sensor** 
+We implemented the touch sensor using the GPIO 4 pin with a wire attached. This analog input produces a signal which is high when not touched and gets lower when touched. If the user was to hold the unattached end of the wire, the signal would drop below 500. We set this threshold since there must be a user touching the wire for it to register below this value - preventing any noise from having an effect. The setup for the touch sensor takes place in the `Setup` method in `main.cpp`. We implementd a simple `if` statement in the main loop to print a message down the serial line if the touch sensor was touched every 100 iterations.
 
 **Cached Access Points**
 Access Points are cached every 200 iterations of the loop by the system. When this occurs, the `getAPs` function is called in `main.cpp`; this function will scan for networks using `Wifi.scanNetworks()` and return a number. This number identifies how many access points the device can detect. When the user wants to change access point by via the `APListForm` function, the access points are already cached, and information is retrieved from the `WiFi` object.
