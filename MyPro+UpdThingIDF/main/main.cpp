@@ -30,7 +30,7 @@ void printIPs();
 void getAPs(uint16_t&);
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 54;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 55;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -105,7 +105,7 @@ void setup() {
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
   Serial.printf("firmware is now running v%d\n", firmwareVersion);
-  }
+  
 
   //getAPs(networkCount);
   delay(300); blink(3);         // signal we've finished config
@@ -128,9 +128,9 @@ void loop() {
     printIPs();
   }
     // Display message if touch sensor active every 100 iterations
-  if (loopIteration % 100 = 0 && touch_filter_value < 500)
+  if (loopIteration % 100 == 0 && touch_filter_value < 500)
   {
-    Serial.printf("Touch Sensor Active!");
+    dln(loopDBG, "Touch Sensor Active!");
   }
     // Refresh APs every 200 iterations
   if (loopIteration % 200 == 0){
