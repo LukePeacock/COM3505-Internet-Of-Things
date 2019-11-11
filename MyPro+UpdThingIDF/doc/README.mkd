@@ -16,26 +16,24 @@ When the device is started, it calls the function `joinmeManageWiFi`in the `join
 
 **pseudocode algorithm:**
 
-main.cpp:
-setup(){
-
-setup usb serial for I/O, assign pins for external LED and pullup switch.
-get ESP's MAC address.
-
-`joinManageWifi(SSID, password)`: Try to connect to the wifi if was previously configured. If it fails start an Access Point and a portal that displays available networks for the user.
-`initWebServer()`: initialise the web server and setup url endpoints.
-setup analog touch pin for OTA updates.
-check if the analog wire frequency has changed: if so, perform OTA update:
-`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
-
+main.cpp:  
+```
+setup(){  
+    setup usb serial for I/O, assign pins for external LED and pullup switch.  
+    get ESP's MAC address.  
+    `joinManageWifi(SSID, password)`: Try to connect to the wifi if was previously configured. If it fails start an Access Point and a portal that displays available networks for the user.  
+    `initWebServer()`: initialise the web server and setup url endpoints.  
+    setup analog touch pin for OTA updates.  
+    try to perform OTA update: `joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`  
+}  
+```
+```
+loop(){  
+    check if the analog wire frequency has changed to a certain threshold: if so, perform OTA update: `joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`  
+    print IPs in the ESP range.  
+    every 2 seconds, get available access points by updating WiFi object: `getAPs(networkCount)`  
 }
-
-loop(){
-check if the analog wire frequency has changed to a certain threshold: if so, perform OTA update:
-`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
-print IPs in the ESP range.
-every 2 seconds, get available access points by updating WiFi object: `getAPs(networkCount)`
-}
+```
 
 ## Security
 
