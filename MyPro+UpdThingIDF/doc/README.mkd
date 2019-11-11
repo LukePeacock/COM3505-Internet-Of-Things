@@ -14,6 +14,29 @@ The first of these files `joinme-2019.cpp` handles web page redirects and over-t
 
 When the device is started, it calls the function `joinmeManageWiFi`in the `joinme-wfmgr-2019.cpp` file. This function checks if the device has been configured and tries to connect to the network. If this fails, it creates is own access point as a captive portal with a list of networks. When the user chooses a network and provides the correct credentials, the device connects to the network and shuts down its own access point.
 
+**pseudocode algorithm:**
+
+main.cpp:
+setup(){
+
+setup usb serial for I/O, assign pins for external LED and pullup switch.
+get ESP's MAC address.
+
+`joinManageWifi(SSID, password)`: Try to connect to the wifi if was previously configured. If it fails start an Access Point and a portal that displays available networks for the user.
+`initWebServer()`: initialise the web server and setup url endpoints.
+setup analog touch pin for OTA updates.
+check if the analog wire frequency has changed: if so, perform OTA update:
+`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
+
+}
+
+loop(){
+check if the analog wire frequency has changed to a certain threshold: if so, perform OTA update:
+`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
+print IPs in the ESP range.
+every 2 seconds, get available access points by updating WiFi object: `getAPs(networkCount)`
+}
+
 ## Security
 
 **How Secure is the Implementation?**
