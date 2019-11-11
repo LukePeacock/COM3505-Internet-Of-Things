@@ -1,43 +1,70 @@
-My documentation for COM3505 assessment 1 (MyPro+UpdThing)
-===
+# My documentation for COM3505 assessment 1 (MyPro+UpdThing)
+
 ## Provisioning and OTA
+
 **What is the purpose of provisioning? and (over-the-air) updating?**
-Provisioning is the process of connecting a new (WiFi) device to a new WiFi network; it involves loading the SSID and login credentials for the network to allow the device to connect. 
+Provisioning is the process of connecting a new (WiFi) device to a new WiFi network; it involves loading the SSID and login credentials for the network to allow the device to connect.
 
 Over-the-air updating allows the device firmware to be updated without having direct access to the device. This means that if the device detects a new firmware version in the cloud, it can download and install the new firmware version without the user needing phsyical access to the device.
 
 **How has `MyPro+UpdThingIDF` chosen to implement these functions?**
-Provisioning and OTA updating are handled by functions in the files `joinme-2019.cpp` and `joinme-wfmgr-2019.cpp`. 
+Provisioning and OTA updating are handled by functions in the files `joinme-2019.cpp` and `joinme-wfmgr-2019.cpp`.
 
-The first of these files `joinme-2019.cpp` handles web page redirects and over-the-air updating; OTA updating only occurs if the device is connected to a WiFi network and has an internet connection. The function `joinmeOTAUpdate` checks the current firmware version number against the version number on gitlab; if they match then no action takes place. If they do not match, then this function will download the new firmware from git and installs it. Several output messages and a progress bar are displayed on the serial line.  When the project is compiled a `.bin` file is created which is stored in `firmware/<<version>>.bin`; this file name is what gets checked against the `main.cpp` class variable `firmwareVersion` by the `joinmeOTAUpdate` function. OTA updates can only be triggered by restarting the device.
+The first of these files `joinme-2019.cpp` handles web page redirects and over-the-air updating; OTA updating only occurs if the device is connected to a WiFi network and has an internet connection. The function `joinmeOTAUpdate` checks the current firmware version number against the version number on gitlab; if they match then no action takes place. If they do not match, then this function will download the new firmware from git and installs it. Several output messages and a progress bar are displayed on the serial line. When the project is compiled a `.bin` file is created which is stored in `firmware/<<version>>.bin`; this file name is what gets checked against the `main.cpp` class variable `firmwareVersion` by the `joinmeOTAUpdate` function. OTA updates can only be triggered by restarting the device.
 
-When the device is started, it calls the function `joinmeManageWiFi`in the `joinme-wfmgr-2019.cpp` file. This function checks if the device has been configured and tries to connect to the network. If this fails, it creates is own access point as a captive portal with a list of networks. When the user chooses a network and provides the correct credentials, the device connects to the network and shuts down its own access point. 
+When the device is started, it calls the function `joinmeManageWiFi`in the `joinme-wfmgr-2019.cpp` file. This function checks if the device has been configured and tries to connect to the network. If this fails, it creates is own access point as a captive portal with a list of networks. When the user chooses a network and provides the correct credentials, the device connects to the network and shuts down its own access point.
+
+**pseudocode algorithm:**
+
+main.cpp:
+setup(){
+
+setup usb serial for I/O, assign pins for external LED and pullup switch.
+get ESP's MAC address.
+
+`joinManageWifi(SSID, password)`: Try to connect to the wifi if was previously configured. If it fails start an Access Point and a portal that displays available networks for the user.
+`initWebServer()`: initialise the web server and setup url endpoints.
+setup analog touch pin for OTA updates.
+check if the analog wire frequency has changed: if so, perform OTA update:
+`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
+
+}
+
+loop(){
+check if the analog wire frequency has changed to a certain threshold: if so, perform OTA update:
+`joinmeOTAUpdate(firmwareVersion, gitlabProjectId, gitlabToken, title)`
+print IPs in the ESP range.
+every 2 seconds, get available access points by updating WiFi object: `getAPs(networkCount)`
+}
 
 ## Security
+
 **How Secure is the Implementation?**
-The implementation not very secure. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
+The implementation is not very secure. While the device is not connected to a WiFi network, anybody can connect to it and change the WiFi settings. It may also be possible to hijack the device by being connected to the same network, this also allows for someone to change the WiFi settings. Connecting to an unsecure or unknown network may allow a malicious firmware version to be uploaded to the device via OTA updating.
 
 Some networks contain firewalls to prevent such attacks, these will restrict network access on a specific port. WiFi spoofing is also a possibility if somebody can create a network with the same credentials and spoof the access point, they would have access to all network traffic. This is usually only an issue on open or public networks though. Gitlab downloads use `https` rather than `http` which can pervent some types of attack. This firmware uses the WPA encryption to authenticate and connect to a network.
 
 Anyone with physical access to the device can flash their own firmware to it, this can be used to deploy malware and viruses on the network. Therefore the device would need a restriction on physical access from the public. Alternatively some type of 2 factor authentication when trying to flash to the device could use an attached sensor to enable/disable firmware updates.
 
-
 ## Efficiency
+
 **How Efficient is the Implementation?**
 Caching the access point is not particularly efficient for this implementation since it takes energy and memory to do this every `X` seconds instead of just scanning when the user wants to change access point. The original implementation of scanning for access points was more efficient, and uses less memory and energy.
 
 ## Bugs and Improvements
+
 **Are There [M]any bugs?**
-There are almost no obvious bugs in the code, although further testing may reveal some. We did complete manual testing and found that there is a floating value which is returned from the `joinMeManageWifi` function that is never used. The function returns a boolean depending on if the device connects to a network, but the boolean is never used outside of the function which returns it. 
+There are almost no obvious bugs in the code, although further testing may reveal some. We did complete manual testing and found that there is a floating value which is returned from the `joinMeManageWifi` function that is never used. The function returns a boolean depending on if the device connects to a network, but the boolean is never used outside of the function which returns it.
 
 **How might it be improved?**
-An obvious improvement would be to increase the timeout delay when trying to connect to a network after a reset. Sometimes the 15 second timeout delay is not enough and the user has to manually connect to the same network. This is especially obvious in an area with lots of networks.
+An obvious improvement would be to increase the timeout delay when trying to connect to a network after a reset. Sometimes the 15 second timeout delay is not enough and the user has to manually connect to the same network. This is especially obvious in an area with lots of networks that reduce the signal strength.
 
 ## Programming Style
-**What is the Dominant Programming Style? What are its advantages and disadvantages?**
-The main programming style is C-style programming, because it uses many C methods such as `c_str()`, but it also incorporates parts of object-oriented, generic, and data abstraction. Keeping C-style programming as the dominant style maintains flexibility within the program and ensures the program remains efficient in a general context. Using C-style programming, and in general C++, means that there is very little memory management, which means there could be memory leaks and other undefined behaviour. This is because there is no automatic garbage collector, unless the user writes one.
 
-http://www.informit.com/articles/article.aspx?p=25000
+**What is the Dominant Programming Style? What are its advantages and disadvantages?**
+The main programming style is C-style programming, because it uses many C methods such as `c_str()`, but it also incorporates parts of object-oriented, generic, and data abstraction. Keeping C-style programming as the dominant style maintains flexibility within the program and ensures the program remains efficient in a general context. Using C-style programming, and in general C++, the programmer has to manage the memory themselves, which can sometimes lead to memory leaks and other undefined behaviour. This is because there is no automatic garbage collector, unless the user writes one.
+
+http://www.informit.com/articles/article.aspx?p=25000 - a reference to an article about C++ programming styles and libraries.
 
 # Included Enhancements
 **Touch Sensor** 
@@ -46,24 +73,28 @@ We implemented the touch sensor using the GPIO 4 pin with a wire attached (Pin A
 **Cached Access Points**
 Access Points are cached every 200 iterations of the loop by the system. When this occurs, the `getAPs` function is called in `main.cpp`; this function will scan for networks using `Wifi.scanNetworks()` and return a number. This number identifies how many access points the device can detect. When the user wants to change access point by via the `APListForm` function, the access points are already cached, and information is retrieved from the `WiFi` object.
 
+**OTA update using IDF API**
+We could not rewrite the current OTA update process using IDF API as the current implementation is using Arduino IDE libraries that are having conflicting methods with IDF API. In case where we would have re written OTA update, we would have needed to rewrite the whole program.
+
 # Possible Enhancements
 
 ### Power Usage
+
 **What levels of power usage are expected during provisioning and updating? What mechanisms do we have to reduce power consumption?**
 Slightly higher levels of power consumption are to be expected during provisioning and updating. There is not much we can do to reduce this since these actions are necessary to connect to a network and update the firmware. Slightly higher power consumption also takes place when refreshing the AP cache every 2 seconds, this can be mitigated by either refreshing the AP cache less often, or only updating it when the user wants to change access point.
 
 ### Security Vulnerabilities
+
 **What risidual security vulneratibilities does the firmware have? How can we fix them?**
-The current implementation does not automatically do OTA updates. This is insecure if a vulnerability is found and the user doesn't update the device. You'd solve it by making the OTA update automatic by checking for a new firmware version every `X` number of seconds/minutes.
+The current implementation does not automatically do OTA updates. This is insecure if a vulnerability is found and the user doesn't update the device. You'd solve it by making the OTA update automatic by checking for a new firmware version every `X` number of seconds/minutes. Or, an available update could be indicated by an LED to notify the user to use touch sensor.
 
-
-
-**How does the ESP32-S2 improve the security profile?** 
+**How does the ESP32-S2 improve the security profile?**
 The original ESP32 uses 1024-bit OTP secure boot flash encryption, whereas the ESP32-S2 used 4096-bit OTP secure boot flash encryption. Using a higher bit count for the OTP secure boot means data is more protected from begin accessed by unauthorised personnel.
 
-The original ESP32  contains AES, SHA-2, RSA, ECC, RNG crypto capabilities; the new ESP32-S2 contains AES-128/192/256, SHA-2, RSA, RNG, HMAC, Digital Signature crypto. This means that information stored on and used by the device is more secure; the new ESP32-S2 has more cryptographic capabilities including more secure algorithms which are harder to crack.
-
+The original ESP32 contains AES, SHA-2, RSA, ECC, RNG crypto capabilities; the new ESP32-S2 contains AES-128/192/256, SHA-2, RSA, RNG, HMAC, Digital Signature crypto. This means that information stored on and used by the device is more secure; the new ESP32-S2 has more cryptographic capabilities including more secure algorithms which are harder to crack.
 
 ### Different Sensors
+
 **What might change if a motion sensor was connected to the ESP32?**
-Provided that the device remained stationary while connecting to the network and/or updating we believe everything would work correctly (sometimes the device will not connect if the access point and/or device is moving while trying to connect). This could be solved by only connecting / updating when the motion sensor is not detecting motion, which ensures a stable WiFi connection.
+A motion sensor would be benefitial for the current implementation, as it could indicate whether or not it is safe to do an OTA update or perform connection to the network. The device would not allow OTA updates until it is stationary so that the download of new firmaware version could be successfuly completed in a stable WiFi connection.
+The other advantage in having a motion sensor is that it could indicate its owner when it was moved in case of malicious behavior by an attacker in an attempt to steal the ESP or do other dangerous activities. The motion of the ESP would be logged in the device and pushed to the project repo every couple hours.
