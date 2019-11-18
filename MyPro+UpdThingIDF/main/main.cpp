@@ -27,10 +27,9 @@ void hndlStatus(AsyncWebServerRequest *);
 void hndlWifi(AsyncWebServerRequest *);
 void apListForm(String&);
 void printIPs();
-void getAPs(uint16_t&);
 
 // OTA support //////////////////////////////////////////////////////////////
-int firmwareVersion = 57;    // keep up-to-date! (used to check for updates)
+int firmwareVersion = 43;    // keep up-to-date! (used to check for updates)
 
 // MAC address //////////////////////////////////////////////////////////////
 char MAC_ADDRESS[13]; // MAC addresses are 12 chars, plus the NULL terminator
@@ -47,7 +46,7 @@ String apSSID = String("Pro+UpdThing-"); // SSID of the AP
 String apPassword = _DEFAULT_AP_KEY;     // passkey for the AP
 AsyncWebServer* webServer;               // async web server
 String ip2str(IPAddress);                // helper for printing IP addresses
-uint16_t networkCount;  //result of WiFi.scanNetworks()
+
 // web server utils /////////////////////////////////////////////////////////
 // the replacement_t type definition allows specification of a subset of the
 // "boilerplate" strings, so we can e.g. replace only the title, or etc.
@@ -57,11 +56,6 @@ void getHtml(String& html, const char *[], int, replacement_t [], int);
 #define GET_HTML(strout, boiler, repls) \
   getHtml(strout, boiler, ALEN(boiler), repls, ALEN(repls));
 
-
-#define TOUCH_PAD_NO_CHANGE   (-1)
-#define TOUCH_THRESH_NO_USE   (0)
-#define TOUCH_FILTER_MODE_EN  (1)
-#define TOUCHPAD_FILTER_TOUCH_PERIOD (10)
 // SETUP: initialisation entry point ////////////////////////////////////////
 void setup() {
   Serial.begin(115200);         // initialise the serial line
@@ -85,29 +79,15 @@ void setup() {
   initWebServer();
   Serial.printf("firmware is at version %d\n", firmwareVersion);
 
-  
   // check for and perform firmware updates as needed
   vTaskDelay(2000 / portTICK_PERIOD_MS); // let wifi settle
-    
-  //initialise touch sensor and get value
-  touch_pad_init();
-  touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_1V);
-  touch_pad_config(TOUCH_PAD_NUM0, TOUCH_THRESH_NO_USE);
-  #if TOUCH_FILTER_MODE_EN
-    touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
-  #endif
-  uint16_t touch_filter_value;
-  touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
   joinmeOTAUpdate(
     firmwareVersion, _GITLAB_PROJ_ID,
     // "", // for publ repo "" works, else need valid PAT: _GITLAB_TOKEN,
     _GITLAB_TOKEN,
     "MyPro+UpdThingIDF%2Ffirmware%2F"
   );
-  Serial.printf("firmware is now running v%d\n", firmwareVersion);
-  
 
-  //getAPs(networkCount);
   delay(300); blink(3);         // signal we've finished config
   printf("\n"); delay(500); printf("\n");
 }
@@ -115,26 +95,10 @@ void setup() {
 // LOOP: task entry point ///////////////////////////////////////////////////
 void loop() {
   int sliceSize = 500;
- 
-  uint16_t touch_filter_value;
-  #if TOUCH_FILTER_MODE_EN
-   // printf("Touch Sensor filter mode read, the output format is: \nTouchpad num:[raw data, filtered data]\n\n");
-    // If open the filter mode, please use this API to get the touch pad count.
-    touch_pad_read_filtered(TOUCH_PAD_NUM0, &touch_filter_value);
-    //printf("T%d:[%4d,%4d] ", TOUCH_PAD_NUM0, touch_value, touch_filter_value);
-  #endif
+
   if(loopIteration++ % sliceSize == 0) { // every sliceSize iterations
     dln(otaDBG, "OTA loop");
     printIPs();
-  }
-    // Display message if touch sensor active every 100 iterations
-  if (loopIteration % 100 == 0 && touch_filter_value < 500)
-  {
-    dln(loopDBG, "Touch Sensor Active!");
-  }
-    // Refresh APs every 200 iterations
-  if (loopIteration % 200 == 0){
-    getAPs(networkCount);
   }
   vTaskDelay(100 / portTICK_PERIOD_MS); // 100 is min to allow IDLE on core 0
 }
@@ -335,19 +299,18 @@ void hndlStatus(AsyncWebServerRequest *request) { // UI to check connectivity
 }
 void apListForm(String& f) { // utility to create a form for choosing AP
   const char *checked = " checked";
-  
-  //int n = WiFi.scanNetworks();
- // dbg(netDBG, "scan done: ");
+  int n = WiFi.scanNetworks();
+  dbg(netDBG, "scan done: ");
 
-  if(networkCount == 0) {
+  if(n == 0) {
     dln(netDBG, "no networks found");
     f += "No wifi access points found :-( ";
     f += "<a href='/'>Back</a><br/><a href='/wifi'>Try again?</a></p>\n";
   } else {
-    dbg(netDBG, networkCount); dln(netDBG, " networks found");
+    dbg(netDBG, n); dln(netDBG, " networks found");
     f += "<p>Wifi access points available:</p>\n"
          "<p><form method='POST' action='wifichz'> ";
-    for(int i = 0; i < networkCount; ++i) {
+    for(int i = 0; i < n; ++i) {
       f.concat("<input type='radio' name='ssid' value='");
       f.concat(WiFi.SSID(i));
       f.concat("'");
@@ -364,12 +327,6 @@ void apListForm(String& f) { // utility to create a form for choosing AP
     f += "<input type='submit' value='Submit'></form></p>";
   }
 }
-
-void getAPs(uint16_t &n){ // utility to get a list of access points and store them.
-    n = WiFi.scanNetworks();
-    dln(netDBG, "Access Point scan done.");
-}
-
 String ip2str(IPAddress address) { // utility for printing IP addresses
   return
     String(address[0]) + "." + String(address[1]) + "." +
