@@ -28,6 +28,10 @@
 #include <Adafruit_NeoPixel.h>    // neopixels generally
 #include <Adafruit_MotorShield.h> // the hbridge motor driver
 #include <Adafruit_TSL2591.h>     // light sensor
+#include <RCSwitch.h>
+
+RCSwitch mySwitch = RCSwitch();
+
 
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
@@ -37,6 +41,7 @@ void flash();            // the RGB LED
 void loraMessage();      // TTN
 void lcdMessage(char *); // message on screen
 int loopIter = 0;        // loop slices
+
 
 // SETUP: initialisation entry point /////////////////////////////////////////
 void setup() {
@@ -67,6 +72,10 @@ void setup() {
   Serial.printf("\nsetup...\nESP32 MAC = %s\n", MAC_ADDRESS);
   Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
   lcdMessage("hello from MyProjectThing!"); // say hello on screen
+  // Transmitter is connected to esp32 Pin #12
+  mySwitch.enableTransmit(12);
+  // We need to set pulse length as it's different from default
+  mySwitch.setPulseLength(175);
   flash(); // flash the internal RGB LED
 }
 
@@ -88,8 +97,18 @@ void loop() {
     loopIter++;
 
     // register button presses
-    if(unPhone::button1()) Serial.println("button1");
-    if(unPhone::button2()) Serial.println("button2");
+    if(unPhone::button1())
+    {
+        mySwitch.send(5527299, 24);      // lookup the code to match your socket
+        Serial.println("Socket 3 On!");
+        lcdMessage("Socket 3 On!");
+    }
+    if(unPhone::button2())
+    {
+        mySwitch.send(5527308, 24);      // these codes are for type 1406
+        Serial.println("Socket 3 Off");
+        lcdMessage("Socket 3 Off!");
+    }
     if(unPhone::button3()) Serial.println("button3");
   }
 }
@@ -120,25 +139,25 @@ void lcdMessage(char *s) {
   unPhone::tftp->print(s);
 }
 
-// send TTN message
-void loraMessage() {
-  /* LoRaWAN keys: copy these values from TTN
-   * register a device and change it to ABP, then copy the keys in msb format
-   * and define them in your private.h, along with _LORA_DEV_ADDR; they'll
-   * look something like this:
-   *   #define _LORA_APP_KEY  { 0xFF, 0xFF, 0xFF, ... }
-   *   #define _LORA_NET_KEY  { 0xFF, 0xFF, 0xFF, ... }
-   *   #define _LORA_DEV_ADDR 0x99999999
-   */
-  u1_t NWKSKEY[16] = _LORA_NET_KEY;
-  u1_t APPSKEY[16] = _LORA_APP_KEY;
-
-  // send a LoRaWAN message to TTN
-  Serial.printf("doing LoRaWAN to TTN...\n");
-  unPhone::lmic_init(_LORA_DEV_ADDR, NWKSKEY, APPSKEY);
-  unPhone::lmic_do_send(&unPhone::sendjob);
-  Serial.printf("...done (TTN)\n");
-}
+//// send TTN message
+//void loraMessage() {
+//  /* LoRaWAN keys: copy these values from TTN
+//   * register a device and change it to ABP, then copy the keys in msb format
+//   * and define them in your private.h, along with _LORA_DEV_ADDR; they'll
+//   * look something like this:
+//   *   #define _LORA_APP_KEY  { 0xFF, 0xFF, 0xFF, ... }
+//   *   #define _LORA_NET_KEY  { 0xFF, 0xFF, 0xFF, ... }
+//   *   #define _LORA_DEV_ADDR 0x99999999
+//   */
+//  u1_t NWKSKEY[16] = _LORA_NET_KEY;
+//  u1_t APPSKEY[16] = _LORA_APP_KEY;
+//
+//  // send a LoRaWAN message to TTN
+//  Serial.printf("doing LoRaWAN to TTN...\n");
+//  unPhone::lmic_init(_LORA_DEV_ADDR, NWKSKEY, APPSKEY);
+//  unPhone::lmic_do_send(&unPhone::sendjob);
+//  Serial.printf("...done (TTN)\n");
+//}
 
 // cycle the LED
 void flash() {

@@ -11,10 +11,10 @@ void setup() {
 }
 
 void loop() {
-  mySwitch.send(4281651, 24);      // lookup the code to match your socket
+  mySwitch.send(5527299, 24);      // lookup the code to match your socket
   Serial.println("Socket 1 On");
-  delay(1000);  
-  mySwitch.send(4281660, 24);      // these codes are for type 1406
+  delay(10000);  
+  mySwitch.send(5527308, 24);      // these codes are for type 1406
   Serial.println("Socket 1 Off");
-  delay(1000);
+  delay(10000);
 }

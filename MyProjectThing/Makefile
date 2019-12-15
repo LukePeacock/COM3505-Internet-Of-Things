@@ -2,7 +2,9 @@
 
 # basic config: CHANGE THESE for new projects
 PROJECT_NAME := MyProjectThing
-UNPHONE_DIR=$(shell cd $(CURDIR)/../../unphone && pwd)
+UNPHONE_DIR=$(shell cd $(IDF_PATH)/../../../unphone && pwd)
+PRIVATE_DIR=$(HOME)
+
 
 # firmware versioning; device port
 FIRMWARE_VERSION := $(shell grep 'int firmwareVersion =' main/main.cpp \
@@ -13,6 +15,7 @@ ESPPORT ?= $(shell for p in ttyUSB0 ttyUSB1 cu.SLAB_USBtoUART; do \
 # tone down compile warnings; make sure we see the correct pin defs header
 CPPFLAGS += -Wno-all \
 -I $(UNPHONE_DIR)/sdks/arduino-esp32/variants/feather_esp32 \
+-I $(PRIVATE_DIR) \
 -Wno-error=return-type -Wno-write-strings \
 -Wno-return-type -Wno-pointer-arith -Wno-cpp -Wno-unused-variable \
 -Wno-missing-field-initializers
