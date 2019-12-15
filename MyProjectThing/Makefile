@@ -2,7 +2,7 @@
 
 # basic config: CHANGE THESE for new projects
 PROJECT_NAME := MyProjectThing
-UNPHONE_DIR=$(shell cd $(IDF_PATH)/../../../unphone && pwd)
+UNPHONE_DIR=$(shell cd $(IDF_PATH)/../../ && pwd)
 PRIVATE_DIR=$(HOME)
 
 

@@ -1,7 +1,7 @@
 # "main" pseudo-component makefile
 
-UNPHONE_INC_DIR=../../../../unphone/src
-UNPHONE_PARENT_DIR=../../../..
+UNPHONE_INC_DIR=../../../unphone/src
+UNPHONE_PARENT_DIR=../../..
 UNPHONE_SRC_DIR=../../../unphone/src
 UNPHONE_LIB_DIR=../../../unphone/lib
 
