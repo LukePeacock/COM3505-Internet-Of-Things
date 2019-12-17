@@ -65,8 +65,11 @@ void initWebServer();
 void hndlRoot(AsyncWebServerRequest *);
 void hndlNotFound(AsyncWebServerRequest *);
 void hndlWifichz(AsyncWebServerRequest *);
-void hndlStatus(AsyncWebServerRequest *);
+void hndlWifiStatus(AsyncWebServerRequest *);
 void hndlWifi(AsyncWebServerRequest *);
+void hndlWifiConfig(AsyncWebServerRequest *request);
+void hndlSocketChange(AsyncWebServerRequest *request);
+void hndlSocketSend(AsyncWebServerRequest *request);
 void apListForm(String&);
 void printIPs();
 
@@ -238,7 +241,7 @@ const char *templatePage[] = {    // we'll use Ex07 templating to build pages
   "<style>body{background:#FFF; color: #000; font-family: sans-serif;", //  4
   "font-size: 150%;}</style>\n",                                        //  5
   "</head><body>\n",                                                    //  6
-  "<h2>Welcome to Thing!</h2>\n",                                       //  7
+  "<h2>Welcome to IoT Sockets!</h2>\n",                                       //  7
   "<!-- page payload goes here... -->\n",                               //  8
   "<!-- ...and/or here... -->\n",                                       //  9
   "\n<p><a href='/'>Home</a>&nbsp;&nbsp;&nbsp;</p>\n",                  // 10
@@ -253,10 +256,12 @@ void initWebServer() { // changed naming conventions to avoid clash with Ex06
   webServer->on("/L0", hndlRoot);            // erm, is this...
   webServer->on("/L2", hndlRoot);            // ...IoS captive portal...
   webServer->on("/ALL", hndlRoot);           // ...stuff?
-  webServer->on("/wifi", hndlWifi);          // page for choosing an AP
+  webServer->on("/wifi", hndlWifi);     // Handle Wifi page
+  webServer->on("/wificonfig", hndlWifiConfig);          // page for choosing an AP
   webServer->on("/wifichz", hndlWifichz);    // landing page for AP form submit
-  webServer->on("/status", hndlStatus);      // status check, e.g. IP address
-
+  webServer->on("/wifi_status", hndlWifiStatus);      // status check, e.g. IP address
+  //webServer->on("/socket/change_status", hndlSocketChange); // Turn socket on or off;
+  webServer->on("/socket_send", hndlSocketSend);
   webServer->begin();
   dln(startupDBG, "HTTP server started");
 }
@@ -269,18 +274,101 @@ void hndlNotFound(AsyncWebServerRequest *request) {
 }
 void hndlRoot(AsyncWebServerRequest *request) {
   dln(netDBG, "serving page notionally at /");
+  String s = "";
+    s += "<p>Socket 1408 3:";
+    s += "<form method='POST' action='socket_send'> ";
+    s += "<input type='hidden' name='socketNumOne' value='1408'>";
+    s += "<input type='hidden' name='socketNumTwo' value='3'>";
+    s += "<input type='hidden' name='status' value='true'>";
+    s += "<input type='submit' value='On'></form>";
+    s += "<form method='POST' action='socket_send'> ";
+    s += "<input type='hidden' name='socketNumOne' value='1408'>";
+    s += "<input type='hidden' name='socketNumTwo' value='3'>";
+    s += "<input type='hidden' name='status' value='false'>";
+    s += "<input type='submit' value='Off'></form>";
+    s += "<p>Socket X: </p>";
+    
   replacement_t repls[] = { // the elements to replace in the boilerplate
     {  1, apSSID.c_str() },
     {  8, "" },
-    {  9, "<p>Choose a <a href=\"wifi\">wifi access point</a>.</p>" },
-    { 10, "<p>Check <a href='/status'>wifi status</a>.</p>" },
+    {  9,  s.c_str()},
+    { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;</p>" },
   };
   String htmlPage = ""; // a String to hold the resultant page
   GET_HTML(htmlPage, templatePage, repls);
   request->send(200, "text/html", htmlPage);
 }
+
+void hndlSocketSend(AsyncWebServerRequest *request) {
+    dln(netDBG, "serving page at /socket_send");
+    
+    String title = "<h2>Changing Socket Status...</h2>";
+    String message = "";
+    String socketNumOne = "";
+    String socketNumTwo = "";
+    String status = "";
+    for(uint8_t i = 0; i < request->args(); i++ ) {
+        String test = "";
+        test += request->argName(i).c_str();
+        test + " :: ";
+        test += request->arg(i).c_str();
+        dln("netDBG", test.c_str());
+      if(request->argName(i) == "socketNumOne")
+        socketNumOne = request->arg(i);
+      else if(request->argName(i) == "socketNumTwo")
+        socketNumTwo = request->arg(i);
+      else if(request->argName(i) == "status")
+        status = request->arg(i);
+    }
+
+    if(socketNumOne == "") {
+      message = "<h2>Ooops, no Socket...?</h2>\n<p>Looks like a bug :-(</p>";
+    } else {
+        
+      // Send Signal
+
+        if (status == "true" && socketNumOne == "1408" && socketNumTwo == "3")
+        {
+            mySwitch.send(5527299, 24);      // lookup the code to match your socket
+            Serial.println("Socket 3 On!");
+            lcdMessage("Socket 3 On!");
+        }
+        else
+        {
+            mySwitch.send(5527308, 24);      // these codes are for type 1406
+            Serial.println("Socket 3 Off");
+            lcdMessage("Socket 3 Off!");
+        }
+    }
+
+    replacement_t repls[] = { // the elements to replace in the template
+      { 1, apSSID.c_str() },
+      { 7, title.c_str() },
+      { 8, "" },
+      { 9, message.c_str()},
+    };
+    String htmlPage = "";     // a String to hold the resultant page
+    GET_HTML(htmlPage, templatePage, repls);
+
+    request->send(200, "text/html", htmlPage);
+}
+
 void hndlWifi(AsyncWebServerRequest *request) {
-  dln(netDBG, "serving page at /wifi");
+    dln(netDBG, "serving page at /wifi");
+    String s = "";
+    s +="<p>Choose a <a href='/wificonfig'>wifi access point</a>.</p>";
+    s +="<p>Check <a href='/wifi_status'>wifi status</a>.</p>";
+    replacement_t repls[] = { // the elements to replace in the boilerplate
+      {  1, apSSID.c_str() },
+      {  8, "" },
+      {  9, s.c_str()},
+    };
+    String htmlPage = ""; // a String to hold the resultant page
+    GET_HTML(htmlPage, templatePage, repls);
+    request->send(200, "text/html", htmlPage);
+}
+void hndlWifiConfig(AsyncWebServerRequest *request) {
+  dln(netDBG, "serving page at /wificonfig");
 
   String form = ""; // a form for choosing an access point and entering key
   apListForm(form);
@@ -299,11 +387,16 @@ void hndlWifichz(AsyncWebServerRequest *request) {
   dln(netDBG, "serving page at /wifichz");
 
   String title = "<h2>Joining wifi network...</h2>";
-  String message = "<p>Check <a href='/status'>wifi status</a>.</p>";
+  String message = "<p>Check <a href='/wifi_status'>wifi status</a>.</p>";
 
   String ssid = "";
   String key = "";
   for(uint8_t i = 0; i < request->args(); i++ ) {
+      String test = "";
+      test += request->argName(i).c_str();
+      test += " :: ";
+      test +=request->arg(i).c_str();
+      dln(netDBG,  test.c_str());
     if(request->argName(i) == "ssid")
       ssid = request->arg(i);
     else if(request->argName(i) == "key")
@@ -329,10 +422,12 @@ void hndlWifichz(AsyncWebServerRequest *request) {
   String htmlPage = "";     // a String to hold the resultant page
   GET_HTML(htmlPage, templatePage, repls);
 
-  request->send(200, "text/html", htmlPage);
+ // request->send(200, "text/html", htmlPage);
+  request->redirect("/wifi");
+
 }
-void hndlStatus(AsyncWebServerRequest *request) { // UI to check connectivity
-  dln(netDBG, "serving page at /status");
+void hndlWifiStatus(AsyncWebServerRequest *request) { // UI to check connectivity
+  dln(netDBG, "serving page at /wifi_status");
 
   String s = "";
   s += "<ul>\n";
@@ -387,15 +482,15 @@ void apListForm(String& f) { // utility to create a form for choosing AP
   if(n == 0) {
     dln(netDBG, "no networks found");
     f += "No wifi access points found :-( ";
-    f += "<a href='/'>Back</a><br/><a href='/wifi'>Try again?</a></p>\n";
+    f += "<a href='/wifi'>Back</a><br/><a href='/wificonfig'>Try again?</a></p>\n";
   } else {
     dbg(netDBG, n); dln(netDBG, " networks found");
     f += "<p>Wifi access points available:</p>\n"
          "<p><form method='POST' action='wifichz'> ";
     for(int i = 0; i < n; ++i) {
-      f.concat("<input type='radio' name='ssid' value='");
+      f.concat("<input type='radio' name='ssid' value=\"");
       f.concat(WiFi.SSID(i));
-      f.concat("'");
+      f.concat("\"");
       f.concat(checked);
       f.concat(">");
       f.concat(WiFi.SSID(i));
