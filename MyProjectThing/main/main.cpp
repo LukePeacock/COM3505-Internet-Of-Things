@@ -21,14 +21,14 @@
 #include <ArduinoJson.h>
 
 // libraries for projects; comment out as required
-#include <Adafruit_VS1053.h>      // the audio chip
+//#include <Adafruit_VS1053.h>      // the audio chip
 #include <RCSwitch.h>             // 433 MHz remote switching
-#include <DHTesp.h>               // temperature / humidity sensor
-#include <GP2Y1010_DustSensor.h>  // the Sharp dust sensor
-#include <Adafruit_NeoMatrix.h>   // neopixel matrix
-#include <Adafruit_NeoPixel.h>    // neopixels generally
-#include <Adafruit_MotorShield.h> // the hbridge motor driver
-#include <Adafruit_TSL2591.h>     // light sensor
+//#include <DHTesp.h>               // temperature / humidity sensor
+//#include <GP2Y1010_DustSensor.h>  // the Sharp dust sensor
+//#include <Adafruit_NeoMatrix.h>   // neopixel matrix
+//#include <Adafruit_NeoPixel.h>    // neopixels generally
+//#include <Adafruit_MotorShield.h> // the hbridge motor driver
+//#include <Adafruit_TSL2591.h>     // light sensor
 #include <RCSwitch.h>
 
 RCSwitch mySwitch = RCSwitch();
@@ -67,9 +67,11 @@ void hndlNotFound(AsyncWebServerRequest *);
 void hndlWifichz(AsyncWebServerRequest *);
 void hndlWifiStatus(AsyncWebServerRequest *);
 void hndlWifi(AsyncWebServerRequest *);
-void hndlWifiConfig(AsyncWebServerRequest *request);
-void hndlSocketChange(AsyncWebServerRequest *request);
-void hndlSocketSend(AsyncWebServerRequest *request);
+void hndlWifiConfig(AsyncWebServerRequest *);
+
+void hndlSocketChange(AsyncWebServerRequest *);
+void socketSend(String, String, String, String&);
+void socketForm(String&, String, String);
 void apListForm(String&);
 void printIPs();
 
@@ -88,10 +90,10 @@ void setup() {
 //  // LoRaWAN example
 //  if(false) loraMessage();
 
-  // buzz a bit
-  for(int i = 0; i < 3; i++) {
-    unPhone::vibe(true);  delay(150); unPhone::vibe(false); delay(150);
-  }
+//  // buzz a bit
+//  for(int i = 0; i < 3; i++) {
+//    unPhone::vibe(true);  delay(150); unPhone::vibe(false); delay(150);
+//  }
 
   // Init the switch
   // Transmitter is connected to esp32 Pin #12
@@ -159,7 +161,7 @@ void loop() {
     }
     if(unPhone::button2())
     {
-        mySwitch.send(5527308, 24);      // these codes are for type 1406
+        mySwitch.send(5527308, 24);      // these codes are for type 1408 3
         Serial.println("Socket 3 Off");
         lcdMessage("Socket 3 Off!");
     }
@@ -261,7 +263,7 @@ void initWebServer() { // changed naming conventions to avoid clash with Ex06
   webServer->on("/wifichz", hndlWifichz);    // landing page for AP form submit
   webServer->on("/wifi_status", hndlWifiStatus);      // status check, e.g. IP address
   //webServer->on("/socket/change_status", hndlSocketChange); // Turn socket on or off;
-  webServer->on("/socket_send", hndlSocketSend);
+  webServer->on("/socket_send", hndlSocketChange);
   webServer->begin();
   dln(startupDBG, "HTTP server started");
 }
@@ -275,18 +277,21 @@ void hndlNotFound(AsyncWebServerRequest *request) {
 void hndlRoot(AsyncWebServerRequest *request) {
   dln(netDBG, "serving page notionally at /");
   String s = "";
-    s += "<p>Socket 1408 3:";
-    s += "<form method='POST' action='socket_send'> ";
-    s += "<input type='hidden' name='socketNumOne' value='1408'>";
-    s += "<input type='hidden' name='socketNumTwo' value='3'>";
-    s += "<input type='hidden' name='status' value='true'>";
-    s += "<input type='submit' value='On'></form>";
-    s += "<form method='POST' action='socket_send'> ";
-    s += "<input type='hidden' name='socketNumOne' value='1408'>";
-    s += "<input type='hidden' name='socketNumTwo' value='3'>";
-    s += "<input type='hidden' name='status' value='false'>";
-    s += "<input type='submit' value='Off'></form>";
-    s += "<p>Socket X: </p>";
+   
+  // Socket 1408 3
+  s += "<p><p style=\"display:inline\">Socket 1408 3:";
+  String f = "";
+  socketForm(f, "1408", "3");
+  s += f.c_str();
+  s += "</p>";
+
+  // Socket 1401 2
+  s += "<p><p style=\"display:inline\">Socket 1401 2: </p>";
+  f = "";
+  socketForm(f, "1401", "2");
+  s += f.c_str();
+  s += "</p>";
+    
     
   replacement_t repls[] = { // the elements to replace in the boilerplate
     {  1, apSSID.c_str() },
@@ -299,7 +304,29 @@ void hndlRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", htmlPage);
 }
 
-void hndlSocketSend(AsyncWebServerRequest *request) {
+void socketForm(String& f, String socketNumOne, String socketNumTwo){
+    dln(netDBG, "Creating Form for: " + socketNumOne + ":" + socketNumTwo);
+    f += "<form method='POST' action='socket_send' style=\"display:inline\"> ";
+    f += "<input type='hidden' name='socketNumOne' value='";
+    f += socketNumOne;
+    f += "'>";
+    f += "<input type='hidden' name='socketNumTwo' value='";
+    f += socketNumTwo;
+    f += "'>";
+    f += "<input type='hidden' name='status' value='true'>";
+    f += "<input type='submit' value='On'></form>";
+    f += "<form method='POST' action='socket_send' style=\"display:inline\"> ";
+    f += "<input type='hidden' name='socketNumOne' value='";
+    f += socketNumOne;
+    f += "'>";
+    f += "<input type='hidden' name='socketNumTwo' value='";
+    f += socketNumTwo;
+    f += "'>";
+    f += "<input type='hidden' name='status' value='false'>";
+    f += "<input type='submit' value='Off'></form>";
+}
+
+void hndlSocketChange(AsyncWebServerRequest *request) {
     dln(netDBG, "serving page at /socket_send");
     
     String title = "<h2>Changing Socket Status...</h2>";
@@ -320,27 +347,7 @@ void hndlSocketSend(AsyncWebServerRequest *request) {
       else if(request->argName(i) == "status")
         status = request->arg(i);
     }
-
-    if(socketNumOne == "") {
-      message = "<h2>Ooops, no Socket...?</h2>\n<p>Looks like a bug :-(</p>";
-    } else {
-        
-      // Send Signal
-
-        if (status == "true" && socketNumOne == "1408" && socketNumTwo == "3")
-        {
-            mySwitch.send(5527299, 24);      // lookup the code to match your socket
-            Serial.println("Socket 3 On!");
-            lcdMessage("Socket 3 On!");
-        }
-        else
-        {
-            mySwitch.send(5527308, 24);      // these codes are for type 1406
-            Serial.println("Socket 3 Off");
-            lcdMessage("Socket 3 Off!");
-        }
-    }
-
+    socketSend(socketNumOne, socketNumTwo, status, message);
     replacement_t repls[] = { // the elements to replace in the template
       { 1, apSSID.c_str() },
       { 7, title.c_str() },
@@ -353,6 +360,61 @@ void hndlSocketSend(AsyncWebServerRequest *request) {
     request->send(200, "text/html", htmlPage);
 }
 
+void socketSend(String socketNumOne, String socketNumTwo, String status, String& message ){
+    if(socketNumOne == "" || socketNumTwo == "") {
+      message = "<h2>Ooops, no Socket...?</h2>\n<p>Looks like a bug :-(</p>";
+    } else {
+        
+      // Send Signal
+        // If socket is 1408 3, check status and send
+        if (socketNumOne == "1408" && socketNumTwo == "3")
+        {
+            if (status == "true")
+            {
+                mySwitch.send(5527299, 24);      // lookup the code to match your socket
+                String s = "Socket 1408 3 On!";
+                Serial.println(s.c_str());
+                message = s.c_str();
+                lcdMessage((char*)s.c_str());
+            }
+            else
+            {
+                mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+                String s ="Socket 1408 3 Off";
+                Serial.println(s.c_str());
+                message = s.c_str();
+                lcdMessage((char*)s.c_str());
+            }
+        }
+        // else if socket is 1401 2, check status and send
+        else if (socketNumOne == "1401" && socketNumTwo == "2")
+        {
+            if (status == "true")
+            {
+                mySwitch.send(1398211, 24);      // lookup the code to match your socket
+                String s ="Socket 1401 2 On!";
+                Serial.println(s.c_str());
+                message = s.c_str();
+                lcdMessage((char*)s.c_str());
+            }
+            else
+            {
+                mySwitch.send(1398220, 24);      // these codes are for type 1408 3
+                String s = "Socket 1401 2 Off";
+                Serial.println(s.c_str());
+                message = s.c_str();
+                lcdMessage((char*)s.c_str());
+            }
+        }
+        // Else error, socket not found
+        else {
+            String s = "Socket Not Found";
+            Serial.println(s.c_str());
+            lcdMessage((char*)s.c_str());
+            message = "<h2>Ooops, " + s + "...?</h2>\n<p>Looks like a bug :-(</p>";
+        }
+    }
+}
 void hndlWifi(AsyncWebServerRequest *request) {
     dln(netDBG, "serving page at /wifi");
     String s = "";
@@ -422,8 +484,8 @@ void hndlWifichz(AsyncWebServerRequest *request) {
   String htmlPage = "";     // a String to hold the resultant page
   GET_HTML(htmlPage, templatePage, repls);
 
- // request->send(200, "text/html", htmlPage);
-  request->redirect("/wifi");
+  request->send(200, "text/html", htmlPage);
+  //request->redirect("/wifi");
 
 }
 void hndlWifiStatus(AsyncWebServerRequest *request) { // UI to check connectivity
