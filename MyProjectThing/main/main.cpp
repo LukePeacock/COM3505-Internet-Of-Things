@@ -293,6 +293,18 @@ void hndlRoot(AsyncWebServerRequest *request) {
   s += "</p>";
     
     
+  // All Sockets
+  s += "<p><p style=\"display:inline\">All Sockets: </p>";
+  s += "<form method='POST' action='socket_send' style=\"display:inline\"> ";
+  s += "<input type='hidden' name='all' value='true'>";
+  s += "<input type='hidden' name='status' value='true'>";
+  s += "<input type='submit' value='On'></form>";
+  s += "<form method='POST' action='socket_send' style=\"display:inline\"> ";
+  s += "<input type='hidden' name='all' value='true'>";
+  s += "<input type='hidden' name='status' value='false'>";
+  s += "<input type='submit' value='Off'></form>";
+  s += "</p>";
+    
   replacement_t repls[] = { // the elements to replace in the boilerplate
     {  1, apSSID.c_str() },
     {  8, "" },
@@ -334,6 +346,7 @@ void hndlSocketChange(AsyncWebServerRequest *request) {
     String socketNumOne = "";
     String socketNumTwo = "";
     String status = "";
+    bool all = false;
     for(uint8_t i = 0; i < request->args(); i++ ) {
         String test = "";
         test += request->argName(i).c_str();
@@ -346,8 +359,21 @@ void hndlSocketChange(AsyncWebServerRequest *request) {
         socketNumTwo = request->arg(i);
       else if(request->argName(i) == "status")
         status = request->arg(i);
+      else if(request->argName(i) == "all")
+        all = true;
     }
-    socketSend(socketNumOne, socketNumTwo, status, message);
+    if (all)
+    {
+        socketSend("1408", "3", status, message);
+        message += "; ";
+        socketSend("1401", "2", status, message);
+    }
+    else if (socketNumOne == "" || socketNumTwo == "")
+        message = "<h2>Ooops, no Socket...?</h2>\n<p>Looks like a bug :-(</p>";
+    else
+        socketSend(socketNumOne, socketNumTwo, status, message);
+    
+    
     replacement_t repls[] = { // the elements to replace in the template
       { 1, apSSID.c_str() },
       { 7, title.c_str() },
@@ -361,59 +387,47 @@ void hndlSocketChange(AsyncWebServerRequest *request) {
 }
 
 void socketSend(String socketNumOne, String socketNumTwo, String status, String& message ){
-    if(socketNumOne == "" || socketNumTwo == "") {
-      message = "<h2>Ooops, no Socket...?</h2>\n<p>Looks like a bug :-(</p>";
-    } else {
-        
-      // Send Signal
-        // If socket is 1408 3, check status and send
-        if (socketNumOne == "1408" && socketNumTwo == "3")
+    String s = "";
+    // Send Signal
+    // If socket is 1408 3, check status and send
+    if (socketNumOne == "1408" && socketNumTwo == "3")
+    {
+        if (status == "true")
         {
-            if (status == "true")
-            {
-                mySwitch.send(5527299, 24);      // lookup the code to match your socket
-                String s = "Socket 1408 3 On!";
-                Serial.println(s.c_str());
-                message = s.c_str();
-                lcdMessage((char*)s.c_str());
-            }
-            else
-            {
-                mySwitch.send(5527308, 24);      // these codes are for type 1408 3
-                String s ="Socket 1408 3 Off";
-                Serial.println(s.c_str());
-                message = s.c_str();
-                lcdMessage((char*)s.c_str());
-            }
+            mySwitch.send(5527299, 24);      // lookup the code to match your socket
+            s = "Socket 1408 3 On!";
+            message += s.c_str();
         }
-        // else if socket is 1401 2, check status and send
-        else if (socketNumOne == "1401" && socketNumTwo == "2")
+        else
         {
-            if (status == "true")
-            {
-                mySwitch.send(1398211, 24);      // lookup the code to match your socket
-                String s ="Socket 1401 2 On!";
-                Serial.println(s.c_str());
-                message = s.c_str();
-                lcdMessage((char*)s.c_str());
-            }
-            else
-            {
-                mySwitch.send(1398220, 24);      // these codes are for type 1408 3
-                String s = "Socket 1401 2 Off";
-                Serial.println(s.c_str());
-                message = s.c_str();
-                lcdMessage((char*)s.c_str());
-            }
-        }
-        // Else error, socket not found
-        else {
-            String s = "Socket Not Found";
-            Serial.println(s.c_str());
-            lcdMessage((char*)s.c_str());
-            message = "<h2>Ooops, " + s + "...?</h2>\n<p>Looks like a bug :-(</p>";
+            mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+            s ="Socket 1408 3 Off";
+            message += s.c_str();
         }
     }
+    // else if socket is 1401 2, check status and send
+    else if (socketNumOne == "1401" && socketNumTwo == "2")
+    {
+        if (status == "true")
+        {
+            mySwitch.send(1398211, 24);      // lookup the code to match your socket
+            s ="Socket 1401 2 On!";
+            message += s.c_str();
+        }
+        else
+        {
+            mySwitch.send(1398220, 24);      // these codes are for type 1408 3
+            s = "Socket 1401 2 Off";
+            message += s.c_str();
+        }
+    }
+    // Else error, socket not found
+    else {
+        s = "Socket Not Found";
+        message = "<h2>Ooops, " + s + "...?</h2>\n<p>Looks like a bug :-(</p>";
+    }
+    Serial.println(s.c_str());
+    lcdMessage((char*)s.c_str());
 }
 void hndlWifi(AsyncWebServerRequest *request) {
     dln(netDBG, "serving page at /wifi");
