@@ -37,6 +37,9 @@ To turn a socket on or off, select the corresponding button on the home page. If
 | On the WiFi page '/wifi',  click 'wifi status'.                                         | User will be directed to wifi status page                                                      | User is directed to wifi status page                                                          | Yes             |
 | On Wifi page '/wifi',  Click 'home'                                                     | User should be directed to root page '/'                                                       | User is directed to root page '/'                                                             | Yes             |
 
+### Bugs 
+There is a bug in the WifiChz function which means that the unPhone cannot connect to any network with `'` apostrophes or `"` quote marks in the name. These symbols are acceptable for network names but a bug in the unPhone means it cannot connect. Originally, we thought this may be because the access point name was escaped in apostrophes, but even changing it to quote marks still led to errors when trying to connect to an access point with an apostrophe in the name. The easiest solution for this given the timescale was to simply change the access point name to remove the offending punctuation.
+
 
 
 ## Function Details
