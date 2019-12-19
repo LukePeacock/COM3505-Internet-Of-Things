@@ -74,7 +74,11 @@ void socketSend(String, String, String, String&);
 void socketForm(String&, String, String);
 void apListForm(String&);
 void printIPs();
+void showLog(AsyncWebServerRequest *);
+void log(String);
+void convertDateTime(String &);
 
+String dataLog = "<div class='datalog'>";
 // SETUP: initialisation entry point /////////////////////////////////////////
 void setup() {
   UNPHONE_DBG = true;
@@ -124,12 +128,14 @@ void setup() {
      );
     
     
-
+ 
   // say hi, store MAC, blink etc.
   Serial.printf("Hello from MyProjectThing...\n");
   getMAC(MAC_ADDRESS);          // store the MAC address
   Serial.printf("\nsetup...\nESP32 MAC = %s\n", MAC_ADDRESS);
   Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
+    log("<p>setup...ESP32 MAC =" + String(MAC_ADDRESS) + "</p>");
+    log("<p>Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
   lcdMessage("hello from MyProjectThing!"); // say hello on screen
  
   flash(); // flash the internal RGB LED
@@ -146,8 +152,16 @@ void loop() {
     
     // allow the protocol CPU IDLE task to run periodically
     if(loopIter % 2500 == 0) {
-      if(loopIter % 25000 == 0)
-        D("completed loop %d, yielding 1000th time since last\n", loopIter)
+        if(loopIter % 25000 == 0)
+        {
+            D("completed loop %d, yielding 1000th time since last\n", loopIter);
+            if (loopIter & 250000 == 0)
+            {
+                D("Completed Loop %d, yielding 10000th time time last\n", loopIter);
+                Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
+                log("Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
+            }
+        }
       delay(100); // 100 appears min to allow IDLE task to fire
     }
     loopIter++;
@@ -167,6 +181,10 @@ void loop() {
     }
     if(unPhone::button3()) Serial.println("button3");
   }
+}
+
+void log(String s){
+    dataLog += s;
 }
 
 // misc utilities ////////////////////////////////////////////////////////////
@@ -195,26 +213,6 @@ void lcdMessage(char *s) {
   unPhone::tftp->print(s);
 }
 
-//// send TTN message
-//void loraMessage() {
-//  /* LoRaWAN keys: copy these values from TTN
-//   * register a device and change it to ABP, then copy the keys in msb format
-//   * and define them in your private.h, along with _LORA_DEV_ADDR; they'll
-//   * look something like this:
-//   *   #define _LORA_APP_KEY  { 0xFF, 0xFF, 0xFF, ... }
-//   *   #define _LORA_NET_KEY  { 0xFF, 0xFF, 0xFF, ... }
-//   *   #define _LORA_DEV_ADDR 0x99999999
-//   */
-//  u1_t NWKSKEY[16] = _LORA_NET_KEY;
-//  u1_t APPSKEY[16] = _LORA_APP_KEY;
-//
-//  // send a LoRaWAN message to TTN
-//  Serial.printf("doing LoRaWAN to TTN...\n");
-//  unPhone::lmic_init(_LORA_DEV_ADDR, NWKSKEY, APPSKEY);
-//  unPhone::lmic_do_send(&unPhone::sendjob);
-//  Serial.printf("...done (TTN)\n");
-//}
-
 // cycle the LED
 void flash() {
   unPhone::rgb(0, 0, 0); delay(300); unPhone::rgb(0, 0, 1); delay(300);
@@ -241,7 +239,8 @@ const char *templatePage[] = {    // we'll use Ex07 templating to build pages
   "<meta charset='utf-8'>",                                             //  3
   "<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n"
   "<style>body{background:#FFF; color: #000; font-family: sans-serif;", //  4
-  "font-size: 150%;}</style>\n",                                        //  5
+  "font-size: 150%;} p{margin: 0pt;} .datalog{background:#b2b2b2; ",
+  "font-size: 60%, margin: 2vw; padding: 2vw;}</style>\n",                                        //  5
   "</head><body>\n",                                                    //  6
   "<h2>Welcome to IoT Sockets!</h2>\n",                                       //  7
   "<!-- page payload goes here... -->\n",                               //  8
@@ -264,8 +263,44 @@ void initWebServer() { // changed naming conventions to avoid clash with Ex06
   webServer->on("/wifi_status", hndlWifiStatus);      // status check, e.g. IP address
   //webServer->on("/socket/change_status", hndlSocketChange); // Turn socket on or off;
   webServer->on("/socket_send", hndlSocketChange);
+    webServer->on("/log", showLog);
   webServer->begin();
   dln(startupDBG, "HTTP server started");
+}
+
+void showLog(AsyncWebServerRequest *request){
+    log("<p>Up Time: ");
+    String time = "";
+    convertDateTime(time);
+    log(time);
+    log(" (dd:hh:mm:ss) - WARNING: Resets after 50 Days!</p>");
+    String s = dataLog.c_str();
+    s += "</div>";
+    replacement_t repls[] = { // the elements to replace in the boilerplate
+      {  1, "Data Log: "},
+      {  8, "" },
+      {  9,  s.c_str()},
+    };
+    String htmlPage = ""; // a String to hold the resultant page
+    GET_HTML(htmlPage, templatePage, repls);
+    request->send(200, "text/html", htmlPage);
+}
+
+void convertDateTime(String &f){
+    unsigned long time = millis();
+    int millisec  = time % 100;    // Get  milliseconds of time
+    int tseconds = time / 1000;    // Get time in seconds
+     int seconds = tseconds % 60;    // Get seconds by modulo on tseconds with 60
+    int tminutes = tseconds / 60;   // Get total minutes by dividing seconds by 60
+    int minutes = tminutes % 60;    // Get minutes of hour by modulo tminutes and 60
+    int thours = tminutes / 60;     // Get hour by dividing minutes by 60
+    int hours = thours % 24;
+    int days = (thours / 24) % 50;
+    f += days;
+    f += ":" + hours;
+    f += ":" + minutes;
+    f += ":" + seconds;
+    f += ":" + millisec;
 }
 
 // webserver handler callbacks
@@ -279,18 +314,18 @@ void hndlRoot(AsyncWebServerRequest *request) {
   String s = "";
    
   // Socket 1408 3
-  s += "<p><p style=\"display:inline\">Socket 1408 3:";
+  s += "<p style=\"display:inline\">Socket 1408 3: </p>";
   String f = "";
   socketForm(f, "1408", "3");
   s += f.c_str();
-  s += "</p>";
+  s += "<p></p>";
 
   // Socket 1401 2
-  s += "<p><p style=\"display:inline\">Socket 1401 2: </p>";
+  s += "<p style=\"display:inline\">Socket 1401 2: </p>";
   f = "";
   socketForm(f, "1401", "2");
   s += f.c_str();
-  s += "</p>";
+  s += "<p></p>";
     
     
   // All Sockets
@@ -309,7 +344,7 @@ void hndlRoot(AsyncWebServerRequest *request) {
     {  1, apSSID.c_str() },
     {  8, "" },
     {  9,  s.c_str()},
-    { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;</p>" },
+    { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;<a href='/log'>Log</a></p>" },
   };
   String htmlPage = ""; // a String to hold the resultant page
   GET_HTML(htmlPage, templatePage, repls);
