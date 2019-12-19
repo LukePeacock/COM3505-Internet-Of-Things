@@ -9,6 +9,17 @@ MyProjectDocs.mkd: COM3505 project documentation
 
 
 ## User Guide
+### Setup 
+To Setup the device, turn it on using the power switch located at the bottom of the device (assuming you have already flashed the software). This will start the device. In the event you have not flashed the software onto the device, navigate to `myprojectthing`, and type `make flash` (you must already have set your IDF and PATH variables).
+
+Once the device starts, it will first try to connect to the last network, if the device connects to the previous network, skip this step. However, if the device does not find and/or connect to the previous network and a timeout occurs, the device will launch its own access point. In this event, please connect to the access point using a laptop/computer/phone/tablet/etc, the name will be `Iot-Sockets-XXXXXXXX` where `XXXXXXXX` is the MAC address of your device. The default password is `password` but of course you can change this in the `private.h` file. Once connected to the access point, you can view wifi settings and connect to a network. Select your network and input the password, the device will then try to connect to the new network. 
+
+Once connected to a network, the device will launch its own web server on the network. The exact address of this will differ based on network, but will be displayed on the UnPhone display. Navigating to this web address will direct you to the home page. This page shows controls for both sockets, as well as links to a data log, and wifi settings of the device. 
+
+To turn a socket on or off, select the corresponding button on the home page. If you want to turn both sockets on or off at the same time, select the option `all sockets`. 
+
+`Wifi Settings` allows you to see wifi status and/or change access point/network. The `Log` is a datalog of activity on the device, however it does not timestamp activity due to the ESP having no internal clock. Instead, time is shown since the device last booted (this counter resets every 50 days!).
+
 
 ## Testing
 | Test                                                                                    | Expected Outcome                                                                               | Actual Outcome                                                                                | Correct Result? |

@@ -136,7 +136,8 @@ void setup() {
   Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
     log("<p>setup...ESP32 MAC =" + String(MAC_ADDRESS) + "</p>");
     log("<p>Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
-  lcdMessage("hello from MyProjectThing!"); // say hello on screen
+    
+  lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
  
   flash(); // flash the internal RGB LED
 }
