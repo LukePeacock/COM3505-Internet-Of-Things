@@ -43,3 +43,4 @@ There is a bug in the WifiChz function which means that the unPhone cannot conne
 
 
 ## Function Details
+For information about functions see comments above each function in respective files.
