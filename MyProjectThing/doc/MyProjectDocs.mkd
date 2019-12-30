@@ -20,6 +20,8 @@ To turn a socket on or off, select the corresponding button on the home page. If
 
 `Wifi Settings` allows you to see wifi status and/or change access point/network. The `Log` is a datalog of activity on the device, however it does not timestamp activity due to the ESP having no internal clock. Instead, time is shown since the device last booted (this counter resets every 50 days!).
 
+##TODO
+//talk about how we chose between 5V and 3.3V cables for the transmiter. Consider adding atenna to use 3.3V
 
 ## Testing
 | Test                                                                                    | Expected Outcome                                                                               | Actual Outcome                                                                                | Correct Result? |

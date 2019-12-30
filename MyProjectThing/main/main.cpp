@@ -1,3 +1,9 @@
+#include <joinme.h>
+#include <waterelf.h>
+#include <unphone.h>
+#include <IOExpander.h>
+#include <unphelf.h>
+
 // main.cpp / sketch.ino
 ///
 // a library or two... ///////////////////////////////////////////////////////
@@ -15,7 +21,7 @@
 #include "unphone.h"
 
 #include <ESPAsyncWebServer.h>
-#include "joinme-2019.h"
+//#include "joinme-2019.h"
 #include <FS.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
@@ -130,7 +136,7 @@ void setup() {
     Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
     log("<p>setup...ESP32 MAC =" + String(MAC_ADDRESS) + "</p>");
     log("<p>Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
-    lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
+    //lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
      
     flash(); // flash the internal RGB LED
 }
@@ -703,8 +709,8 @@ void apListForm(String& f) { // utility to create a form for choosing AP
 }
 
 //// 
-//String ip2str(IPAddress address) { // utility for printing IP addresses
-//  return
-//    String(address[0]) + "." + String(address[1]) + "." +
-//    String(address[2]) + "." + String(address[3]);
-//}
+String ip2str(IPAddress address) { // utility for printing IP addresses
+  return
+    String(address[0]) + "." + String(address[1]) + "." +
+    String(address[2]) + "." + String(address[3]);
+}
