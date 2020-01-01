@@ -15,7 +15,6 @@ UniversalTelegramBot bot(telegramApiKey, netSSL);
 // https://core.telegram.org/bots/api
 int checkMessages()
 {
-  //bot.getUpdates gets any pending messages and stores them in bot.messages
   return bot.getUpdates(bot.last_message_received + 1);
 }
 

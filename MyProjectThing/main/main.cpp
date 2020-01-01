@@ -1,4 +1,4 @@
-#include <joinme.h>
+cd ..#include <joinme.h>
 #include <waterelf.h>
 #include <unphone.h>
 #include <IOExpander.h>
@@ -27,7 +27,6 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
-
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
 char *getMAC(char *);    // read the address into buffer
@@ -53,7 +52,7 @@ void getHtml(String& html, const char *[], int, replacement_t [], int);
     getHtml(strout, boiler, ALEN(boiler), repls, ALEN(repls));
 
 // TELEGRAM /////////////////////////////////////////////////////////
-uint32_t BOT_INTERVAL = 500; //how to check telegram
+uint32_t BOT_INTERVAL = 2000; //how to check telegram
 uint32_t currentBotTime = 0; //init value
 uint32_t checkedBotTime = 0; //init value
 
@@ -190,20 +189,20 @@ void loop() {
       //Telegram -- -  -- -   -  --- -- - -  -   -
       
       currentBotTime = millis();
+      
       if (currentBotTime - checkedBotTime > BOT_INTERVAL)
       {
-        Serial.println("Polling Telegram ..");
+
         checkedBotTime = currentBotTime;
+                
         int numNewMessages = checkMessages();
-        /**
-         * TODO:
-         * handle new messages
-         * respond with status
-         * display toggle on the UnPhone
-         */
+
         if (numNewMessages > 0)
           handleNewMessages(numNewMessages); 
+        
       }
+     
+      
     }
 
     
