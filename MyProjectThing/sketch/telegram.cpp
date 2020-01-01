@@ -26,22 +26,27 @@ void handleNewMessages(int numNewMessages)
     for (int i=0; i < numNewMessages; i++)
     {
       String text = bot.messages[i].text;
-      
+      Serial.printf("-- Telegram --");
+      Serial.println(text.c_str());
       if (text == "2_ON")
       {
-        
+        plug2On();
+        Serial.println("plug2On");
       }
       else if (text == "2_OFF")
       {
-      
+        plug2Off();
+        Serial.println("plug2Off");
       }
       else if (text == "3_ON")
       {
-      
+        plug3On();
+        Serial.println("plug3On");
       }
       else if (text == "3_OFF")
       {
-      
+        plug3Off();
+        Serial.println("plug3Off");
       }
       else
       {

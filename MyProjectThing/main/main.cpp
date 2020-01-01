@@ -1,5 +1,3 @@
-#ifndef main
-#define main
 #include <joinme.h>
 #include <waterelf.h>
 #include <unphone.h>
@@ -22,19 +20,13 @@
 #include "private.h" // stuff not for checking in
 #include "unphone.h"
 #include "telegram.h"
-
+#include "transmitter.h"
 
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
-// libraries for projects; comment out as required
-#include <RCSwitch.h>             // 433 MHz remote switching
-#include <RCSwitch.h>
-
-RCSwitch mySwitch = RCSwitch();
-#endif
 
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
@@ -111,8 +103,7 @@ void setup() {
 //      }
 
     // Init the switch
-    mySwitch.enableTransmit(12);    // Transmitter is connected to esp32 Pin #12
-    mySwitch.setPulseLength(175);   // We need to set pulse length as it's different from default
+    setupSwitch();
     
     // Init wifi manager and network options
     getMAC(MAC_ADDRESS);
@@ -182,43 +173,42 @@ void loop() {
         loopIter++;
 
         // register button presses
+        //TODO: add toggle between plug2 and plug3 for button 3
         if(unPhone::button1())
         {
-            mySwitch.send(5527299, 24);      // Turn on code for 1408 3
+            plug2On();
             Serial.println("Socket 3 On!");
             lcdMessage("Socket 3 On!");
         }
         if(unPhone::button2())
         {
-            mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+            plug2Off();
             Serial.println("Socket 3 Off");
             lcdMessage("Socket 3 Off!");
         }
+        
+      //Telegram -- -  -- -   -  --- -- - -  -   -
+      
+      currentBotTime = millis();
+      if (currentBotTime - checkedBotTime > BOT_INTERVAL)
+      {
+        Serial.println("Polling Telegram ..");
+        checkedBotTime = currentBotTime;
+        int numNewMessages = checkMessages();
+        /**
+         * TODO:
+         * handle new messages
+         * respond with status
+         * display toggle on the UnPhone
+         */
+        if (numNewMessages > 0)
+          handleNewMessages(numNewMessages); 
+      }
     }
 
-    //Telegram -- -  -- -   -  --- -- - -  -   -
     
-    currentBotTime = millis();
-    if (currentBotTime - checkedBotTime > BOT_INTERVAL)
-    {
-      checkedBotTime = currentBotTime;
-      int numNewMessages = checkMessages();
-      /**
-       * TODO:
-       * handle new messages
-       * respond with status
-       * display toggle on the UnPhone
-       */
-      if (numNewMessages > 0)
-        handleNewMessages(numNewMessages); 
-    }
     
 }
-
-// Telegram functions -------------------
-
-
-//End of Telegram functions
 
 /* LOG FUNCTION
  *
@@ -527,13 +517,13 @@ void socketSend(String socketNumOne, String socketNumTwo, String status, String&
     {
         if (status == "true")
         {
-            mySwitch.send(5527299, 24);      // lookup the code to match your socket
+            plug3On();
             s = "Socket 1408 3 On!";
             message += s.c_str();
         }
         else
         {
-            mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+            plug3Off();
             s ="Socket 1408 3 Off";
             message += s.c_str();
         }
@@ -543,13 +533,13 @@ void socketSend(String socketNumOne, String socketNumTwo, String status, String&
     {
         if (status == "true")
         {
-            mySwitch.send(1398211, 24);      // lookup the code to match your socket
+            plug2On();
             s ="Socket 1401 2 On!";
             message += s.c_str();
         }
         else
         {
-            mySwitch.send(1398220, 24);      // these codes are for type 1408 3
+            plug2Off();
             s = "Socket 1401 2 Off";
             message += s.c_str();
         }
