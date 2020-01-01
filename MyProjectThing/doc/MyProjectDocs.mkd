@@ -22,7 +22,7 @@ To turn a socket on or off, select the corresponding button on the home page. If
 
 ##TODO
 //talk about how we chose between 5V and 3.3V cables for the transmiter. Consider adding atenna to use 3.3V
-
+//note storing telegram messages, possible improvement on having external storage for logging.
 ## Testing
 | Test                                                                                    | Expected Outcome                                                                               | Actual Outcome                                                                                | Correct Result? |
 |-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-----------------|

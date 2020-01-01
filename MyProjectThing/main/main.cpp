@@ -1,3 +1,5 @@
+#ifndef main
+#define main
 #include <joinme.h>
 #include <waterelf.h>
 #include <unphone.h>
@@ -19,9 +21,10 @@
 
 #include "private.h" // stuff not for checking in
 #include "unphone.h"
+#include "telegram.h"
+
 
 #include <ESPAsyncWebServer.h>
-//#include "joinme-2019.h"
 #include <FS.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
@@ -31,7 +34,7 @@
 #include <RCSwitch.h>
 
 RCSwitch mySwitch = RCSwitch();
-
+#endif
 
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
@@ -56,6 +59,11 @@ void getHtml(String& html, const char *[], int, replacement_t [], int);
 #define ALEN(a) ((int) (sizeof(a) / sizeof(a[0]))) // only in definition scope!
 #define GET_HTML(strout, boiler, repls) \
     getHtml(strout, boiler, ALEN(boiler), repls, ALEN(repls));
+
+// TELEGRAM /////////////////////////////////////////////////////////
+uint32_t BOT_INTERVAL = 500; //how to check telegram
+uint32_t currentBotTime = 0; //init value
+uint32_t checkedBotTime = 0; //init value
 
 //Function Protos
 // we're not in arduino land any more, so need to declare function protos ///
@@ -187,7 +195,30 @@ void loop() {
             lcdMessage("Socket 3 Off!");
         }
     }
+
+    //Telegram -- -  -- -   -  --- -- - -  -   -
+    
+    currentBotTime = millis();
+    if (currentBotTime - checkedBotTime > BOT_INTERVAL)
+    {
+      checkedBotTime = currentBotTime;
+      int numNewMessages = checkMessages();
+      /**
+       * TODO:
+       * handle new messages
+       * respond with status
+       * display toggle on the UnPhone
+       */
+      if (numNewMessages > 0)
+        handleNewMessages(numNewMessages); 
+    }
+    
 }
+
+// Telegram functions -------------------
+
+
+//End of Telegram functions
 
 /* LOG FUNCTION
  *
