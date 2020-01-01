@@ -1,5 +1,4 @@
 #include "telegram.h"
-
 String telegramApiKey = _TELEGRAM_API_KEY;
 WiFiClientSecure netSSL;
 UniversalTelegramBot bot(telegramApiKey, netSSL);

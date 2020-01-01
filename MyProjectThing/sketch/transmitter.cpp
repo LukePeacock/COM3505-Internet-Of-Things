@@ -1,4 +1,4 @@
-#include "transmitor.h"
+#include "transmitter.h"
 
 
 RCSwitch mySwitch = RCSwitch();

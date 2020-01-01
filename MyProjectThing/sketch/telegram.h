@@ -7,7 +7,7 @@
 // https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot 
 #include <UniversalTelegramBot.h>
 #include "private.h"
-
+#include "transmitter.h"
 
 
 int checkMessages();
