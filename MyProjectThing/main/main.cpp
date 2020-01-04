@@ -1,4 +1,4 @@
-cd ..#include <joinme.h>
+#include <joinme.h>
 #include <waterelf.h>
 #include <unphone.h>
 #include <IOExpander.h>
@@ -52,7 +52,7 @@ void getHtml(String& html, const char *[], int, replacement_t [], int);
     getHtml(strout, boiler, ALEN(boiler), repls, ALEN(repls));
 
 // TELEGRAM /////////////////////////////////////////////////////////
-uint32_t BOT_INTERVAL = 2000; //how to check telegram
+uint32_t BOT_INTERVAL = 2000; //time period for checking telegram bot api 
 uint32_t currentBotTime = 0; //init value
 uint32_t checkedBotTime = 0; //init value
 
@@ -95,11 +95,6 @@ void setup() {
 
     // flash the internal RGB LED
     flash();
-
-//      // buzz a bit
-//      for(int i = 0; i < 3; i++) {
-//        unPhone::vibe(true);  delay(150); unPhone::vibe(false); delay(150);
-//      }
 
     // Init the switch
     setupSwitch();
@@ -172,7 +167,6 @@ void loop() {
         loopIter++;
 
         // register button presses
-        //TODO: add toggle between plug2 and plug3 for button 3
         if(unPhone::button1())
         {
             plug2On();
@@ -186,27 +180,20 @@ void loop() {
             lcdMessage("Socket 3 Off!");
         }
         
-      //Telegram -- -  -- -   -  --- -- - -  -   -
-      
+      //Telegram 
       currentBotTime = millis();
       
       if (currentBotTime - checkedBotTime > BOT_INTERVAL)
       {
-
         checkedBotTime = currentBotTime;
-                
+        //checkMessages is in telegram.cpp                
         int numNewMessages = checkMessages();
 
         if (numNewMessages > 0)
           handleNewMessages(numNewMessages); 
-        
       }
-     
-      
     }
 
-    
-    
 }
 
 /* LOG FUNCTION
