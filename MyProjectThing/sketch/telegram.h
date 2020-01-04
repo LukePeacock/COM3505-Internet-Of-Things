@@ -9,9 +9,7 @@
 #include "private.h"
 #include "transmitter.h"
 
-
 int checkMessages();
 void handleNewMessages(int);
-
 
 #endif

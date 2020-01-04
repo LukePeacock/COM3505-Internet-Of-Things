@@ -26,7 +26,8 @@ void handleNewMessages(int numNewMessages)
     for (int i=0; i < numNewMessages; i++)
     {
       String text = bot.messages[i].text;
-      Serial.printf("Telegram");
+      if(text[0] == '/') text.remove(0, 1);
+      Serial.printf("Telegram: ");
       Serial.println(text.c_str());
       if (text == "2_ON")
       {
