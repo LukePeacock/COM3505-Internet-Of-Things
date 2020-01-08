@@ -16,6 +16,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <WiFi.h>
+#include <Adafruit_GFX.h>
 
 #include "private.h" // stuff not for checking in
 #include "unphone.h"
@@ -28,14 +29,14 @@
 #include <ArduinoJson.h>
 
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
-int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
+int firmwareVersion = 2; // keep up-to-date! (used to check for updates)
 char *getMAC(char *);    // read the address into buffer
 char MAC_ADDRESS[13];    // MAC addresses are 12 chars, plus the NULL
 void flash();            // the RGB LED
 void loraMessage();      // TTN
-void lcdMessage(char *); // message on screen
+void lcdMessage(String); // message on screen
 int loopIter = 0;        // loop slices
-
+String buttonSocket = "1408_3";
 
 // globals for a wifi access point and webserver ////////////////////////////
 String apSSID = String("IoT-Sockets-"); // SSID of the AP
@@ -73,11 +74,7 @@ void socketSend(String, String, String, String&);
 void socketForm(String&, String, String);
 void apListForm(String&);
 void printIPs();
-void showLog(AsyncWebServerRequest *);
-void log(String);
-void convertDateTime(String &);
 
-String dataLog = "<div class='datalog'>";   // Start datalog string with div class
 
 /* SETUP: initialisation entry point
  *
@@ -93,7 +90,8 @@ void setup() {
     // power management
     unPhone::printWakeupReason(); // what woke us up?
     unPhone::checkPowerSwitch();  // if power switch is off, shutdown
-
+    unPhone::tftp->fillScreen(HX8357_BLACK);
+    unPhone::tftp->setRotation(2);
     // flash the internal RGB LED
     flash();
 
@@ -105,6 +103,7 @@ void setup() {
     apSSID.concat(MAC_ADDRESS);
     Serial.printf("\nSetup...\nESP32 MAC = %s\n", MAC_ADDRESS);
     Serial.printf("WiFi Manager...\n");
+    lcdMessage("Joining WiFi Network...");
     joinmeManageWiFi(apSSID.c_str(), apPassword.c_str()); // get network connection
     Serial.printf("WiFi Manager Done!\n\n");
   
@@ -112,7 +111,7 @@ void setup() {
     webServer = new AsyncWebServer(80);
     initWebServer();
     Serial.printf("Firmware Version: %d\n", firmwareVersion);
-    
+    lcdMessage("Checking for Updates...");
     // Check for and perform OTA firmware update
     vTaskDelay(2000/ portTICK_PERIOD_MS);
     joinmeOTAUpdate(
@@ -128,9 +127,7 @@ void setup() {
     getMAC(MAC_ADDRESS);          // store the MAC address
     Serial.printf("\nsetup...\nESP32 MAC = %s\n", MAC_ADDRESS);
     Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
-    log("<p>setup...ESP32 MAC =" + String(MAC_ADDRESS) + "</p>");
-    log("<p>Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
-    //lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
+    lcdMessage("hello from " + ip2str(WiFi.localIP())); // say hello on screen
      
     flash(); // flash the internal RGB LED
 }
@@ -160,26 +157,54 @@ void loop() {
                 {
                     D("Completed Loop %d, yielding 10000th time time last\n", loopIter);
                     Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
-                    log("Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
                 }
             }
             delay(100); // 100 appears min to allow IDLE task to fire
         }
-        loopIter++;
+        
 
-        // register button presses
+        // button 1, turn on selected socket
         if(unPhone::button1())
         {
-            plug2On();
-            Serial.println("Socket 3 On!");
-            lcdMessage("Socket 3 On!");
+            if (strcmp(buttonSocket.c_str(),"1408_3") == 0)
+            {
+                plug3On();
+            }
+            else if (strcmp(buttonSocket.c_str(), "1401_2") == 0)
+            {
+                plug2On();
+            }
+            // Debug message on serial and lcd
+            Serial.println("Socket " + buttonSocket + " On!");
+            lcdMessage("Socket " + buttonSocket + " On!");
         }
+        // Button 2, turn off selected socket
         if(unPhone::button2())
         {
-            plug2Off();
-            Serial.println("Socket 3 Off");
-            lcdMessage("Socket 3 Off!");
+            if (strcmp(buttonSocket.c_str(), "1408_3") ==0)
+            {
+                plug3Off();
+            }
+            else if (strcmp(buttonSocket.c_str(), "1401_2")==0)
+                plug2Off();
+            // Debug message on serial and lcd
+            Serial.println("Socket " + buttonSocket + " Off");
+            lcdMessage("Socket " + buttonSocket + " Off");
         }
+        
+        // 3rd Button to toggle sockets
+        if(unPhone::button3())
+        {
+            // If already on socket 1408 3, change to socket 1401 2
+            if (strcmp(buttonSocket.c_str(), "1408_3") ==0)
+                buttonSocket = "1401_2";
+            else
+                buttonSocket = "1408_3";
+            // Print message on serial and lcd
+            Serial.println("Socket " + buttonSocket + " Chosen");
+            lcdMessage("Socket " + buttonSocket + " Chosen");
+        }
+        
         
       //Telegram 
       currentBotTime = millis();
@@ -193,18 +218,10 @@ void loop() {
         if (numNewMessages > 0)
           handleNewMessages(numNewMessages); 
       }
+        loopIter++;
     }
-
 }
 
-/* LOG FUNCTION
- *
- * adds input string to end of datalog string
- *
- */
-void log(String s){
-    dataLog += s;
-}
 
 // misc utilities ////////////////////////////////////////////////////////////
 // get the ESP's MAC address
@@ -223,7 +240,7 @@ char *getMAC(char *buf) { // the MAC is 6 bytes; needs careful conversion...
 }
 
 // message on LCD
-void lcdMessage(char *s) {
+void lcdMessage(String s) {
     unPhone::tftp->setCursor(0, 465);
     unPhone::tftp->setTextSize(2);
     unPhone::tftp->setTextColor(HX8357_CYAN, HX8357_BLACK);
@@ -263,8 +280,7 @@ const char *templatePage[] = {    // we'll use Ex07 templating to build pages
     "<meta charset='utf-8'>",                                             //  3
     "<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n"
     "<style>body{background:#FFF; color: #000; font-family: sans-serif;", //  4
-    "font-size: 150%;} p{margin: 0pt;} .datalog{background:#b2b2b2; ",
-    "font-size: 60%, margin: 2vw; padding: 2vw;}</style>\n",              //  5
+    "font-size: 150%;} p{margin: 0pt;}</style>\n",              //  5
     "</head><body>\n",                                                    //  6
     "<h2>Welcome to IoT Sockets!</h2>\n",                                 //  7
     "<!-- page payload goes here... -->\n",                               //  8
@@ -291,62 +307,10 @@ void initWebServer() { // changed naming conventions to avoid clash with Ex06
     webServer->on("/wifichz", hndlWifichz);    // landing page for AP form submit
     webServer->on("/wifi_status", hndlWifiStatus);      // status check, e.g. IP address
     webServer->on("/socket_send", hndlSocketChange);    // Send socket update to socket
-    webServer->on("/log", showLog);
     webServer->begin();
     dln(startupDBG, "HTTP server started");
 }
 
-/* SHOW LOG FUNCTION
- *
- * Function to show the data log on the wb server.
- * Effectively allows the user to track debug messages without needing serial connection.
- * Calculates uptime since turn on, then adds datalog to html string, then send html.
- *
- */
-void showLog(AsyncWebServerRequest *request){
-    log("<p>Up Time: ");
-    String time = "";
-    convertDateTime(time);
-    log(time);
-    log(" (dd:hh:mm:ss) - WARNING: Resets after 50 Days!</p>");
-    String s = dataLog.c_str();
-    s += "</div>";
-    replacement_t repls[] = { // the elements to replace in the boilerplate
-        {  1, "Data Log: "},
-        {  8, "" },
-        {  9,  s.c_str()},
-    };
-    String htmlPage = ""; // a String to hold the resultant page
-    GET_HTML(htmlPage, templatePage, repls);
-    request->send(200, "text/html", htmlPage);
-}
-
-/* Convert Date Time
- *
- * Given a string f, calculate time in days:hours:minutes:seconds:milliseconds and append to f.
- *
- */
-void convertDateTime(String &f){
-    unsigned long time = millis();  // Time in milliseconds since turn on (resets evert 50 days)
-    int millisec  = time % 100;    // Get  milliseconds portion of time
-    
-    int tseconds = time / 1000;    // Get time in seconds
-    int seconds = tseconds % 60;    // Get seconds portion by modulo on tseconds with 60
-    
-    int tminutes = tseconds / 60;   // Get total minutes by dividing seconds by 60
-    
-    int minutes = tminutes % 60;    // Get minutes of hour by modulo tminutes and 60
-    int thours = tminutes / 60;     // Get hour by dividing minutes by 60
-    int hours = thours % 24;        // number of hours
-    
-    int days = (thours / 24) % 50;  // Det number of dats
-    
-    f += days;                  // Append the values
-    f += ":" + hours;
-    f += ":" + minutes;
-    f += ":" + seconds;
-    f += "." + millisec;
-}
 
 
 // webserver handler callbacks
@@ -397,7 +361,7 @@ void hndlRoot(AsyncWebServerRequest *request) {
         {  1, apSSID.c_str() },
         {  8, "" },
         {  9,  s.c_str()},
-        { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;<a href='/log'>Log</a></p>" },
+        { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;</p>" },
     };
     String htmlPage = ""; // a String to hold the resultant page
     GET_HTML(htmlPage, templatePage, repls);

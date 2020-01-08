@@ -60,9 +60,9 @@ void handleNewMessages(int numNewMessages)
 void setTelegramApiKey(String newTelegramApiKey){
     try {
         telegramApiKey = newTelegramApiKey;
-    };
-    catch {
-        resetTelegramApiKey
+    }
+    catch (...){
+        resetTelegramApiKey();
     };
 }
 
