@@ -36,6 +36,7 @@ void loraMessage();      // TTN
 void lcdMessage(char *); // message on screen
 int loopIter = 0;        // loop slices
 
+
 // globals for a wifi access point and webserver ////////////////////////////
 String apSSID = String("IoT-Sockets-"); // SSID of the AP
 String apPassword = _DEFAULT_AP_KEY;     // passkey for the AP
