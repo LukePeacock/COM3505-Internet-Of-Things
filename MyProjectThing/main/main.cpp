@@ -1,3 +1,9 @@
+#include <joinme.h>
+#include <waterelf.h>
+#include <unphone.h>
+#include <IOExpander.h>
+#include <unphelf.h>
+
 // main.cpp / sketch.ino
 ///
 // a library or two... ///////////////////////////////////////////////////////
@@ -13,19 +19,13 @@
 
 #include "private.h" // stuff not for checking in
 #include "unphone.h"
+#include "telegram.h"
+#include "transmitter.h"
 
 #include <ESPAsyncWebServer.h>
-#include "joinme-2019.h"
 #include <FS.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-
-// libraries for projects; comment out as required
-#include <RCSwitch.h>             // 433 MHz remote switching
-#include <RCSwitch.h>
-
-RCSwitch mySwitch = RCSwitch();
-
 
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 1; // keep up-to-date! (used to check for updates)
@@ -35,6 +35,7 @@ void flash();            // the RGB LED
 void loraMessage();      // TTN
 void lcdMessage(char *); // message on screen
 int loopIter = 0;        // loop slices
+
 
 // globals for a wifi access point and webserver ////////////////////////////
 String apSSID = String("IoT-Sockets-"); // SSID of the AP
@@ -50,6 +51,11 @@ void getHtml(String& html, const char *[], int, replacement_t [], int);
 #define ALEN(a) ((int) (sizeof(a) / sizeof(a[0]))) // only in definition scope!
 #define GET_HTML(strout, boiler, repls) \
     getHtml(strout, boiler, ALEN(boiler), repls, ALEN(repls));
+
+// TELEGRAM /////////////////////////////////////////////////////////
+uint32_t BOT_INTERVAL = 2000; //time period for checking telegram bot api 
+uint32_t currentBotTime = 0; //init value
+uint32_t checkedBotTime = 0; //init value
 
 //Function Protos
 // we're not in arduino land any more, so need to declare function protos ///
@@ -91,14 +97,8 @@ void setup() {
     // flash the internal RGB LED
     flash();
 
-//      // buzz a bit
-//      for(int i = 0; i < 3; i++) {
-//        unPhone::vibe(true);  delay(150); unPhone::vibe(false); delay(150);
-//      }
-
     // Init the switch
-    mySwitch.enableTransmit(12);    // Transmitter is connected to esp32 Pin #12
-    mySwitch.setPulseLength(175);   // We need to set pulse length as it's different from default
+    setupSwitch();
     
     // Init wifi manager and network options
     getMAC(MAC_ADDRESS);
@@ -130,7 +130,7 @@ void setup() {
     Serial.printf("battery voltage = %3.3f\n", unPhone::batteryVoltage());
     log("<p>setup...ESP32 MAC =" + String(MAC_ADDRESS) + "</p>");
     log("<p>Battery Voltage = " + String(unPhone::batteryVoltage()) + "</p>");
-    lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
+    //lcdMessage("hello from " + WiFi.localIP().c_str()); // say hello on screen
      
     flash(); // flash the internal RGB LED
 }
@@ -170,17 +170,31 @@ void loop() {
         // register button presses
         if(unPhone::button1())
         {
-            mySwitch.send(5527299, 24);      // Turn on code for 1408 3
+            plug2On();
             Serial.println("Socket 3 On!");
             lcdMessage("Socket 3 On!");
         }
         if(unPhone::button2())
         {
-            mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+            plug2Off();
             Serial.println("Socket 3 Off");
             lcdMessage("Socket 3 Off!");
         }
+        
+      //Telegram 
+      currentBotTime = millis();
+      
+      if (currentBotTime - checkedBotTime > BOT_INTERVAL)
+      {
+        checkedBotTime = currentBotTime;
+        //checkMessages is in telegram.cpp                
+        int numNewMessages = checkMessages();
+
+        if (numNewMessages > 0)
+          handleNewMessages(numNewMessages); 
+      }
     }
+
 }
 
 /* LOG FUNCTION
@@ -490,13 +504,13 @@ void socketSend(String socketNumOne, String socketNumTwo, String status, String&
     {
         if (status == "true")
         {
-            mySwitch.send(5527299, 24);      // lookup the code to match your socket
+            plug3On();
             s = "Socket 1408 3 On!";
             message += s.c_str();
         }
         else
         {
-            mySwitch.send(5527308, 24);      // these codes are for type 1408 3
+            plug3Off();
             s ="Socket 1408 3 Off";
             message += s.c_str();
         }
@@ -506,13 +520,13 @@ void socketSend(String socketNumOne, String socketNumTwo, String status, String&
     {
         if (status == "true")
         {
-            mySwitch.send(1398211, 24);      // lookup the code to match your socket
+            plug2On();
             s ="Socket 1401 2 On!";
             message += s.c_str();
         }
         else
         {
-            mySwitch.send(1398220, 24);      // these codes are for type 1408 3
+            plug2Off();
             s = "Socket 1401 2 Off";
             message += s.c_str();
         }
@@ -703,8 +717,8 @@ void apListForm(String& f) { // utility to create a form for choosing AP
 }
 
 //// 
-//String ip2str(IPAddress address) { // utility for printing IP addresses
-//  return
-//    String(address[0]) + "." + String(address[1]) + "." +
-//    String(address[2]) + "." + String(address[3]);
-//}
+String ip2str(IPAddress address) { // utility for printing IP addresses
+  return
+    String(address[0]) + "." + String(address[1]) + "." +
+    String(address[2]) + "." + String(address[3]);
+}
