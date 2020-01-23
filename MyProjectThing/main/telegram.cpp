@@ -42,20 +42,22 @@ void handleNewMessages(int numNewMessages)
       else if (text == "3_ON")
       {
         plug3On();
+          bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 ON", "");
         Serial.println("plug3On");
       }
       else if (text == "3_OFF")
       {
         plug3Off();
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 OFF", "");
         Serial.println("plug3Off");
       }
         else if (text == "start")
         {
-            bot.sendSimpleMessage(bot.messages[i].chat_id, (String)"Hi!", "");
+            bot.sendSimpleMessage(bot.messages[i].chat_id,"Hi!", "");
         }
       else
       {
-          bot.sendSimpleMessage(bot.messages[i].chat_id, (String)"Command Not Recognised", "");
+          bot.sendSimpleMessage(bot.messages[i].chat_id,"Command Not Recognised", "");
         //respond that the command is not recognised
       }
         
