@@ -315,27 +315,22 @@ void lcdDelayMsg()
     // Draw rectangle in darker color.
     unPhone::tftp->fillRect(buffer, buffer + (lineHeight * 5), blockWidth,(buffer * 10) + (lineHeight * 8) , nn_grey);
 
+    // Write out message line by line
+    // Probably a better way to do this but this a quick and dirty hack that works
     unPhone::tftp->setCursor(buffer*2, (buffer*2) + (lineHeight * 5));
     unPhone::tftp->print("NOTICE:");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*3) + (lineHeight * 6));
     unPhone::tftp->print("You may notice a small");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*4) + (lineHeight * 7));
     unPhone::tftp->print("delay when pressing a");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*5) + (lineHeight * 8));
     unPhone::tftp->print("button. To ensure the");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*6) + (lineHeight * 9));
     unPhone::tftp->print("button is registered");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*7) + (lineHeight * 10));
     unPhone::tftp->print("please hold it until");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*8) + (lineHeight * 11));
     unPhone::tftp->print("the message below");
-    
     unPhone::tftp->setCursor(buffer*2, (buffer*9) + (lineHeight * 12));
     unPhone::tftp->print("updates");
 }
