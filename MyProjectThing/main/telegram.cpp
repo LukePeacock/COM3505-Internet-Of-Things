@@ -8,6 +8,7 @@ String telegramApiKey = _TELEGRAM_API_KEY;
 WiFiClientSecure netSSL;
 UniversalTelegramBot bot(telegramApiKey, netSSL);
 
+String responseTimeMessage = "Messages Received! Please be aware messages are processed in batches, so there may be a small delay between you (the user) sending a command, and the command begin received and processed";
 /**
  * called from main::loop() every BOT_INTERVAL ms. 
  * @return number of new messages. The number is used in handleNewMessages.
@@ -23,6 +24,10 @@ int checkMessages()
  * */
 void handleNewMessages(int numNewMessages)
 {
+    // Generic reponse about wait times
+    bot.sendSimpleMessage(bot.messages[0].chat_id, responseTimeMessage, "");
+    
+    // Process each message
     for (int i=0; i < numNewMessages; i++)
     {
       String text = bot.messages[i].text;
@@ -42,7 +47,7 @@ void handleNewMessages(int numNewMessages)
       else if (text == "3_ON")
       {
         plug3On();
-          bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 ON", "");
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 ON", "");
         Serial.println("plug3On");
       }
       else if (text == "3_OFF")
