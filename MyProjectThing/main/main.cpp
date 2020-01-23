@@ -75,6 +75,8 @@ void socketForm(String&, String, String);
 void apListForm(String&);
 void printIPs();
 
+void hndlTelegramConfig(AsyncWebServerRequest *);
+void hndlTelegramChange(AsyncWebServerRequest *);
 
 /* SETUP: initialisation entry point
  *
@@ -90,8 +92,11 @@ void setup() {
     // power management
     unPhone::printWakeupReason(); // what woke us up?
     unPhone::checkPowerSwitch();  // if power switch is off, shutdown
+    
+    //unPhone::tftp->setRotation(2); //Because of UnPhone lcd inversion hack, screen cannot be rotated without text being mirrored. LCD hack needs fixing first. This is a library issue.
     unPhone::tftp->fillScreen(HX8357_BLACK);
-    unPhone::tftp->setRotation(2);
+    
+    
     // flash the internal RGB LED
     flash();
 
@@ -307,8 +312,11 @@ void initWebServer() { // changed naming conventions to avoid clash with Ex06
     webServer->on("/wifichz", hndlWifichz);    // landing page for AP form submit
     webServer->on("/wifi_status", hndlWifiStatus);      // status check, e.g. IP address
     webServer->on("/socket_send", hndlSocketChange);    // Send socket update to socket
+    webServer->on("/telegram_config", hndlTelegramConfig); //Telegram API Config Page
+    webServer->on("/telegram_change", hndlTelegramChange); //Telegram API change
     webServer->begin();
     dln(startupDBG, "HTTP server started");
+
 }
 
 
@@ -361,7 +369,7 @@ void hndlRoot(AsyncWebServerRequest *request) {
         {  1, apSSID.c_str() },
         {  8, "" },
         {  9,  s.c_str()},
-        { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;</p>" },
+        { 10, "<p><a href='/wifi'>Wifi Settings</a>&nbsp;&nbsp;&nbsp;<a href='/telegram_config'>Telegram Bot Settings</a></p>" },
     };
     String htmlPage = ""; // a String to hold the resultant page
     GET_HTML(htmlPage, templatePage, repls);
@@ -415,11 +423,6 @@ void hndlSocketChange(AsyncWebServerRequest *request) {
     String status = "";
     bool all = false;
     for(uint8_t i = 0; i < request->args(); i++ ) {
-        String test = "";
-        test += request->argName(i).c_str();
-        test + " :: ";
-        test += request->arg(i).c_str();
-        dln("netDBG", test.c_str());
       if(request->argName(i) == "socketNumOne")
         socketNumOne = request->arg(i);
       else if(request->argName(i) == "socketNumTwo")
@@ -446,6 +449,64 @@ void hndlSocketChange(AsyncWebServerRequest *request) {
       { 7, title.c_str() },
       { 8, "" },
       { 9, message.c_str()},
+    };
+    String htmlPage = "";     // a String to hold the resultant page
+    GET_HTML(htmlPage, templatePage, repls);
+
+    request->send(200, "text/html", htmlPage);
+}
+
+/* HANDLE TELEGRAM BOT CONFIG SETTINGS
+ *
+ * displays information about the current telegram bot, and allows user to change API key
+ *
+ */
+void hndlTelegramConfig(AsyncWebServerRequest *request) {
+    dln(netDBG, "serving page at /telegram_config");
+    
+    String title = "<h2>Telegram API settings</h2>";
+    String message = "";
+    String key = _TELEGRAM_API_KEY;
+    //setTelegramApiKey(key);
+    message = "Current Key: " + key;
+    
+    
+    replacement_t repls[] = { // the elements to replace in the template
+      { 1, apSSID.c_str() },
+      { 7, title.c_str() },
+      { 8, message.c_str()},
+      { 9, ""},
+    };
+    String htmlPage = "";     // a String to hold the resultant page
+    GET_HTML(htmlPage, templatePage, repls);
+
+    request->send(200, "text/html", htmlPage);
+}
+
+/* HANDLE TELEGRAM BOT API CHANGE
+ *
+ * displays information about the new telegram bot.
+ *
+ */
+void hndlTelegramChange(AsyncWebServerRequest *request) {
+    dln(netDBG, "serving page at /telegram_change");
+    
+    String title = "<h2>Changing API Key...</h2>";
+    String message = "";
+    String key = "";
+    for(uint8_t i = 0; i < request->args(); i++ ) {
+      if(request->argName(i) == "key")
+        key = request->arg(i);
+    }
+    setTelegramApiKey(key);
+    message = "Key Changed..";
+    
+    
+    replacement_t repls[] = { // the elements to replace in the template
+      { 1, apSSID.c_str() },
+      { 7, title.c_str() },
+      { 8, message.c_str()},
+      { 9, ""},
     };
     String htmlPage = "";     // a String to hold the resultant page
     GET_HTML(htmlPage, templatePage, repls);

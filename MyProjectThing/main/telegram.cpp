@@ -49,8 +49,13 @@ void handleNewMessages(int numNewMessages)
         plug3Off();
         Serial.println("plug3Off");
       }
+        else if (text == "start")
+        {
+            bot.sendSimpleMessage(bot.messages[i].chat_id, (String)"Hi!", "");
+        }
       else
       {
+          bot.sendSimpleMessage(bot.messages[i].chat_id, (String)"Command Not Recognised", "");
         //respond that the command is not recognised
       }
         
