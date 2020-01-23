@@ -28,6 +28,10 @@
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 
+// Define colors
+#define nn_grey 0x9CD3
+#define l_grey 0xCE79
+
 // OTA, MAC address, messaging, loop slicing//////////////////////////////////
 int firmwareVersion = 2; // keep up-to-date! (used to check for updates)
 char *getMAC(char *);    // read the address into buffer
@@ -35,6 +39,7 @@ char MAC_ADDRESS[13];    // MAC addresses are 12 chars, plus the NULL
 void flash();            // the RGB LED
 void loraMessage();      // TTN
 void lcdMessage(String); // message on screen
+void lcdSetUp();         // Description of buttons
 int loopIter = 0;        // loop slices
 String buttonSocket = "1408_3";
 
@@ -95,7 +100,7 @@ void setup() {
     
     //unPhone::tftp->setRotation(2); //Because of UnPhone lcd inversion hack, screen cannot be rotated without text being mirrored. LCD hack needs fixing first. This is a library issue.
     unPhone::tftp->fillScreen(HX8357_BLACK);
-    
+    lcdSetUp();
     
     // flash the internal RGB LED
     flash();
@@ -108,6 +113,7 @@ void setup() {
     apSSID.concat(MAC_ADDRESS);
     Serial.printf("\nSetup...\nESP32 MAC = %s\n", MAC_ADDRESS);
     Serial.printf("WiFi Manager...\n");
+    
     lcdMessage("Joining WiFi Network...");
     joinmeManageWiFi(apSSID.c_str(), apPassword.c_str()); // get network connection
     Serial.printf("WiFi Manager Done!\n\n");
@@ -253,6 +259,43 @@ void lcdMessage(String s) {
     unPhone::tftp->setCursor(0, 465);
     unPhone::tftp->print(s);
 }
+
+// Set up lcd messages
+void lcdSetUp()
+{
+    int buffer = 10;
+    int lineHeight = 20;
+    int width = unPhone::tftp->width();
+    int blockWidth = width - (buffer * 4);
+    blockWidth /= 3;
+    
+    unPhone::tftp->setTextSize(2);
+    unPhone::tftp->setTextColor(HX8357_BLACK);
+    
+    // draw rectangle and label for left most button
+    unPhone::tftp->fillRect(buffer, buffer, blockWidth,(buffer * 3) + (lineHeight * 2) , l_grey);
+    unPhone::tftp->setCursor(buffer*2,buffer*2);
+    unPhone::tftp->print("Change");
+    unPhone::tftp->setCursor(buffer*2,lineHeight + (buffer*2));
+    unPhone::tftp->print("Socket");
+    
+    // draw rectangle and label for middle button
+    unPhone::tftp->fillRect((buffer*2) + blockWidth, buffer, blockWidth,(buffer * 3) + (lineHeight * 2) , l_grey);
+    unPhone::tftp->setCursor(buffer*3 + blockWidth,buffer*2);
+    unPhone::tftp->print(buttonSocket);
+    unPhone::tftp->setCursor(buffer*3 + blockWidth,lineHeight + buffer*2);
+    unPhone::tftp->print("Off");
+    
+    // draw rectangle and label for left most button
+    unPhone::tftp->fillRect((buffer*3) + (blockWidth * 2),buffer,  blockWidth,(buffer * 3) + (lineHeight * 2) , l_grey);
+    unPhone::tftp->setCursor(buffer*4 + (blockWidth*2),buffer*2);
+    unPhone::tftp->print(buttonSocket);
+    unPhone::tftp->setCursor(buffer*4 + (blockWidth*2),lineHeight + buffer*2);
+    unPhone::tftp->print("On");
+}
+
+
+
 
 // cycle the LED
 void flash() {
