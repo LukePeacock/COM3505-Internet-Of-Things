@@ -259,11 +259,17 @@ char *getMAC(char *buf) { // the MAC is 6 bytes; needs careful conversion...
 
 // message on LCD
 void lcdMessage(String s) {
-    unPhone::tftp->setCursor(0, 465);
+    int height = unPhone::tftp->height();
+    int width = unPhone::tftp->width();
+    int buffer = 10;
+    int lineHeight = 20;
+    int blockWidth = width - (buffer * 2);
+    
+    unPhone::tftp->fillRect(buffer, height - (buffer*2) - lineHeight, blockWidth,(buffer * 2) + lineHeight , l_grey);
     unPhone::tftp->setTextSize(2);
-    unPhone::tftp->setTextColor(HX8357_BLACK, l_grey);
-    unPhone::tftp->print("                          ");
-    unPhone::tftp->setCursor(0, 465);
+    unPhone::tftp->setTextColor(HX8357_BLACK);
+    
+    unPhone::tftp->setCursor(buffer*2, height - buffer - lineHeight);
     unPhone::tftp->print(s);
 }
 
