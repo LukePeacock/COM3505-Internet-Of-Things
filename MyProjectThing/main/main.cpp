@@ -208,9 +208,15 @@ void loop() {
         {
             // If already on socket 1408 3, change to socket 1401 2
             if (strcmp(buttonSocket.c_str(), "1408_3") ==0)
+            {
                 buttonSocket = "1401_2";
+                lcdSetUp();
+            }
             else
+            {
                 buttonSocket = "1408_3";
+                lcdSetUp();
+            }
             // Print message on serial and lcd
             Serial.println("Socket " + buttonSocket + " Chosen");
             lcdMessage("Socket " + buttonSocket + " Chosen");
