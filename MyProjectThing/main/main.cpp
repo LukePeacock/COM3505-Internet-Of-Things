@@ -555,7 +555,6 @@ void hndlTelegramConfig(AsyncWebServerRequest *request) {
     String title = "<h2>Telegram API settings</h2>";
     String message = "";
     String key = getBotToken();
-    //setTelegramApiKey(key);
     message = "Current Key: " + key;
     
     String f = "";
@@ -590,10 +589,10 @@ void hndlTelegramChange(AsyncWebServerRequest *request) {
       if(request->argName(i) == "key")
         key = request->arg(i);
     }
-    dln(netDBG, "Beginning key change");
-    setTelegramApiKey(key);
-    message = "Key Changed...";
-    dln(netDBG, "End Key change");
+    if (setTelegramApiKey(key))
+        message = "Key Changed...";
+    else
+        message = "Invalid Key. Key Reset...";
     
     replacement_t repls[] = { // the elements to replace in the template
       { 1, apSSID.c_str() },

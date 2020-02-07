@@ -70,12 +70,18 @@ void handleNewMessages(int numNewMessages)
  * Update the bot's token (api key). Check response from getMe() function of bot.
  * if function returns true, update, else reset
  * */
-void setTelegramApiKey(String newToken){
+bool setTelegramApiKey(String newToken){
     bot.setToken(newToken);
     if (bot.getMe())
+    {
         telegramApiKey = newToken;
+        return true;
+    }
     else
+    {
         resetTelegramApiKey();
+        return false;
+    }
 }
 
 /**

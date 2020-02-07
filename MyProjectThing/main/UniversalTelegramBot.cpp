@@ -314,26 +314,19 @@ String UniversalTelegramBot::sendMultipartFormDataToTelegram(
 
 bool UniversalTelegramBot::getMe() {
   String command = "bot" + _token + "/getMe";
-    Serial.print("Created Command");
   String response =
       sendGetToTelegram(command); // receive reply from telegram.org
-    Serial.print("Created Response");
   DynamicJsonBuffer jsonBuffer;
   JsonObject &root = jsonBuffer.parseObject(response);
-    Serial.print("JSON'ed response");
 
   closeClient();
-    Serial.print("closed client");
 
   if (root.success()) {
-      Serial.print("root success");
     if (root.containsKey("result")) {
-        Serial.print("root contains result" );
       String _name = root["result"]["first_name"];
       String _username = root["result"]["username"];
       name = _name;
       userName = _username;
-        Serial.print("return true");
       return true;
     }
   }
