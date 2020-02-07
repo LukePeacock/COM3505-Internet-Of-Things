@@ -1,4 +1,4 @@
-// MyEtchAThing.ino, by Gareth
+0// MyEtchAThing.ino, by Gareth
 // an example derived from https://learn.adafruit.com/lsm303-accelerometer-slash-compass-breakout?view=all#accelerometer-demo-code-5-24
 // of using the unPhone's LSM303 MEMs motion sensor
 

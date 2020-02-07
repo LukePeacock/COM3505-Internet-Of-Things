@@ -17,6 +17,10 @@ void setupSwitch()
  * methods for toggling plugs using mySwitch. Will not function properly if setupSwitch() is 
  * not called beforehand.
  * */
+void sendSignal(int signalNum){
+  mySwitch.send(signalNum, 24);
+}
+ 
 void plug2On()
 {
   mySwitch.send(1398211, 24);

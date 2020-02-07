@@ -9,6 +9,7 @@ void plug2Off();
 void plug3On();
 void plug3Off();
 
+void sendSignal(int);
 
 
 #endif
