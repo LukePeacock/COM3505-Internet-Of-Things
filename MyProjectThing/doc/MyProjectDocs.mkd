@@ -14,17 +14,21 @@ To Setup the device, turn it on using the power switch located at the bottom of 
 
 Once the device starts, it will first try to connect to the last network, if the device connects to the previous network, skip this step. However, if the device does not find and/or connect to the previous network and a timeout occurs, the device will launch its own access point. In this event, please connect to the access point using a laptop/computer/phone/tablet/etc, the name will be `Iot-Sockets-XXXXXXXX` where `XXXXXXXX` is the MAC address of your device. The default password is `password` but of course you can change this in the `private.h` file. Once connected to the access point, you can view wifi settings and connect to a network. Select your network and input the password, the device will then try to connect to the new network. 
 
-Once connected to a network, the device will launch its own web server on the network. The exact address of this will differ based on network, but will be displayed on the UnPhone display. Navigating to this web address will direct you to the home page. This page shows controls for both sockets, as well as links to a data log, and wifi settings of the device. 
+Once connected to a network, the device will launch its own web server on the network. The exact address of this will differ based on network, but will be displayed on the UnPhone display. Navigating to this web address will direct you to the home page. This page shows controls for both sockets, as well as a link to the wifi settings of the device, and a link to the telegram settings. 
 
 To turn a socket on or off, select the corresponding button on the home page. If you want to turn both sockets on or off at the same time, select the option `all sockets`. 
 
-`Wifi Settings` allows you to see wifi status and/or change access point/network. The `Log` is a datalog of activity on the device, however it does not timestamp activity due to the ESP having no internal clock. Instead, time is shown since the device last booted (this counter resets every 50 days!).
+`Wifi Settings` allows you to see wifi status and/or change access point/network. 
 
-##TODO
+`Telegram Settings` allows you to see the current telegram API key and change it to a new key if required. This allows the user to change the API key on a device without needing to change the `private.h` file and reflash the device. This is useful for distributing the device as it allows users to change the API key to their own bot. If the user inputs a valid API key into the form, the device will update the key for the bot and check for a response from the telegram API. If a success response is received, the key will update. If the user inputs an invalid API key, then the device will attempt to update the key, get an invalid response from the telgram API and reset the key to the one stored in `private.h`.
+
+The device contains some information on the LCD screen to assist the user including a warning about processing delay (due to the API). The user can use the buttons on the unPhone to turn the selected switch on or off, and use the third button to navigate switches. 
+
+## TODO
 //talk about how we chose between 5V and 3.3V cables for the transmiter. Consider adding atenna to use 3.3V
 //note storing telegram messages, possible improvement on having external storage for logging.
 
-##Telegram API bot 
+## Telegram API bot 
 Our solution provides functionality for toggling smart socket plugs using Telegram API bot. This works by creating your own Telegram Bot and assigning its authentication token to the _BOT_API_KEY in private.h. To use it, type in appropriate command in the bot chat, or if you have a group chat with bot included, add **/** prefix. 
 
 Commands available:
@@ -73,7 +77,7 @@ For further features and improvements the following can be considered:
 ### Bugs 
 There is a bug in the WifiChz function which means that the unPhone cannot connect to any network with `'` apostrophes or `"` quote marks in the name. These symbols are acceptable for network names but a bug in the unPhone means it cannot connect. Originally, we thought this may be because the access point name was escaped in apostrophes, but even changing it to quote marks still led to errors when trying to connect to an access point with an apostrophe in the name. The easiest solution for this given the timescale was to simply change the access point name to remove the offending punctuation.
 
-
+There is also a bug where if the unPhone attempts to send an ssl request and waits for a response during a network outage (including a millisecond long one), the device will panic and reset itself - this is network related and not actually a bug in the device or firmware.
 
 ## Function Details
 For information about functions see comments above each function in respective files.

@@ -559,7 +559,7 @@ void hndlTelegramConfig(AsyncWebServerRequest *request) {
     message = "Current Key: " + key;
     
     String f = "";
-    f += "<form method='POST' action='telegram_change' style=\"display:inline\"> ";
+    f += "<h2>Change API Key</h2><form method='POST' action='telegram_change' > ";
     f += "<input type='text' name='key'>";
     f += "<input type='submit' value='Submit'></form>";
     
