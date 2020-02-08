@@ -8,6 +8,7 @@ String telegramApiKey = _TELEGRAM_API_KEY;
 WiFiClientSecure netSSL;
 UniversalTelegramBot bot(telegramApiKey, netSSL);
 
+String responseTimeMessage = "Messages Received! Please be aware messages are processed in batches, so there may be a small delay between you (the user) sending a command, and the command begin received and processed";
 /**
  * called from main::loop() every BOT_INTERVAL ms. 
  * @return number of new messages. The number is used in handleNewMessages.
@@ -23,19 +24,18 @@ int checkMessages()
  * */
 void handleNewMessages(int numNewMessages)
 {
+    // Generic reponse about wait times
+    bot.sendSimpleMessage(bot.messages[0].chat_id, responseTimeMessage, "");
+    
+    // Process each message
     for (int i=0; i < numNewMessages; i++)
     {
-      
       String text = bot.messages[i].text;
-      String chat_id = String(bot.messages[i].chat_id);
+      String chat_id = bot.messages[i].chat_id;
       if(text[0] == '/') text.remove(0, 1);
+      
       Serial.printf("Telegram: ");
       Serial.println(text.c_str());
-
-
-      
-      //Legacy code ----------------
-      /*
       if (text == "2_ON")
       {
         plug2On();
@@ -49,44 +49,69 @@ void handleNewMessages(int numNewMessages)
       else if (text == "3_ON")
       {
         plug3On();
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 ON", "");
         Serial.println("plug3On");
       }
       else if (text == "3_OFF")
       {
         plug3Off();
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "1408_3 OFF", "");
         Serial.println("plug3Off");
       }
-      else if (text == "help")
+        else if (text == "start")
+        {
+            bot.sendSimpleMessage(bot.messages[i].chat_id,"Hi!", "");
+        }
+      else if(text == "options")
       {
-        //keyboardResponse(chat_id);
-        //respond that the command is not recognised
+        String keyboardJson = "[[\"/ledon\", \"/ledoff\"],[\"/status\"]]";
+        bot.sendMessageWithReplyKeyboard(chat_id, "Choose from one of the following options", "", keyboardJson, true);
       }
-        */
+      else if(text.length() >= 8){
+        tryToggleSocket(text, i);
+      }
+      else
+      {
+        bot.sendSimpleMessage(bot.messages[i].chat_id,"Command " + text + " is not recognised", "");
+      }
+      
     }
 }
 
-/**
- * Plan:
- * 1. create a socket code map:
- *    key - socket main code
- *    values: 1on, 1off, 2on, 2off ... .
- *    Define this as enum with corresponding array index values 1on - 0, 1off - 1, 2on - 2..
- *    
- * 2. Rewrite command recognition system: given the command, try access map key and then value   
- *    Needs to parse command String: {socket}_{num}_{on/off}
- * 
- */
-/*
-void keyboardResponse(String chat_id){
+//Prerequisite: text has to be of length 8 or bigger. Checked in handleNewMessages method.
+//Possibly implement try catch
+void tryToggleSocket(String text, int msgIndex){
+  try{
+  String socketName = text.substring(0,4);
+  String socketStatus;
+  //ON case
+  if(text.length() == 8) {
+    socketStatus = text.substring(5,8);
+  }
+  //OFF case
+  else{
+    socketStatus = text.substring(5,9);
+  }
   
-  bot.sendMessageWithReplyKeyboard(String chat_id);
+  String responseMessage = "The socket code " + socketName + " " + socketStatus + " is unrecognised";
+  if(toggleSwitch(socketName, socketStatus)){
+    responseMessage = "Signal for " + socketName + " " + socketStatus + " has been sent";
+  }
+  bot.sendMessage(bot.messages[msgIndex].chat_id, responseMessage ,"");
+  }
+  catch(...){
+    
+  }
 }
-*/
 
-//const std::map<std::string, std::map<std::string, int>> sample {"1401", {"1On", 1423434} } ;
 
 void setTelegramApiKey(String newTelegramApiKey){
-  telegramApiKey = newTelegramApiKey;
+    try {
+        telegramApiKey = newTelegramApiKey;
+    }
+    catch (...){
+        resetTelegramApiKey();
+    };
 }
 
 void resetTelegramApiKey(){
