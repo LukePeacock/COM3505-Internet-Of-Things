@@ -10,9 +10,6 @@ void plug2Off();
 void plug3On();
 void plug3Off();
 bool toggleSwitch(String, String);
-
-
-
-
+void toggleOurs(bool);
 
 #endif

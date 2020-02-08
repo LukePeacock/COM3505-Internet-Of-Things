@@ -103,6 +103,19 @@ bool toggleSwitch(String socketName, String socketStatus){
   }
 }
 
+//1401 2 and 1408 3 switches
+void toggleOurs(bool turnOn){
+  String toggle = "OFF";
+  if(turnOn) toggle = "ON";
+  
+  int code = codes["1401"]["2" + toggle];
+  mySwitch.send(code, 24);
+  
+  code = codes["1408"]["3" + toggle];
+  mySwitch.send(code, 24);
+
+}
+
 void plug2On()
 {
   mySwitch.send(1398211, 24);
