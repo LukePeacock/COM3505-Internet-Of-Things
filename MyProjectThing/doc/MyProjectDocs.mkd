@@ -37,6 +37,8 @@ This format is valid for every switch, from 1401 to 1408.
 
 **/OURS\_ON|OFF - toggles all the sockets within the range. At this stage we impemented this for our own 1401\_2 and 1408\_3 sockets. 
 
+![Telegram Keyboard options](keyboard-options.png "keyboard options")
+
 ## Implementation 
 The initial challenge in implementing Telegram Bot API was to decide how the updates in Telegram would be received by the unPhone. We decided to take a look at two solutions: using WebHooks to send HTTP requests directly to the unPhone and unPhone constantly polling the Telegram Bot API for updates.
 
