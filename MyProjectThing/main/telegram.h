@@ -14,5 +14,6 @@ void handleNewMessages(int);
 bool setTelegramApiKey(String);
 void resetTelegramApiKey();
 String getBotToken();
+void tryToggleSocket(String, int);
 
 #endif
