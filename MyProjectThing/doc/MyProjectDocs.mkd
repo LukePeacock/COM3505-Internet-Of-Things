@@ -20,34 +20,32 @@ To turn a socket on or off, select the corresponding button on the home page. If
 
 `Wifi Settings` allows you to see wifi status and/or change access point/network. 
 
-`Telegram Settings` allows you to see the current telegram API key and change it to a new key if required. This allows the user to change the API key on a device without needing to change the `private.h` file and reflash the device. This is useful for distributing the device as it allows users to change the API key to their own bot. If the user inputs a valid API key into the form, the device will update the key for the bot and check for a response from the telegram API. If a success response is received, the key will update. If the user inputs an invalid API key, then the device will attempt to update the key, get an invalid response from the telgram API and reset the key to the one stored in `private.h`.
-
-The device contains some information on the LCD screen to assist the user including a warning about processing delay (due to the API). The user can use the buttons on the unPhone to turn the selected switch on or off, and use the third button to navigate switches. 
-
-## TODO
-//talk about how we chose between 5V and 3.3V cables for the transmiter. Consider adding atenna to use 3.3V
-//note storing telegram messages, possible improvement on having external storage for logging.
-
 ## Telegram API bot 
 Our solution provides functionality for toggling smart socket plugs using Telegram API bot. This works by creating your own Telegram Bot and assigning its authentication token to the _BOT_API_KEY in private.h. To use it, type in appropriate command in the bot chat, or if you have a group chat with bot included, add **/** prefix. 
 
-Commands available:
-- For switch 2, 1401:
-   - **2_ON** - active the plug.
-   - **2_OFF** - turn off the plug.
-- For switch 3, 1408:
-   - **3_ON**  - active the plug.
-   - **3_OFF** - turn off the plug.
+## Commands
+In our program, we have implemented a functionallity of directly toggling any switch on or off, provided a command is of format: **/**{4 digit socket code}**\_**{1 digit socket index}{ON|OFF}.
+Example: **/1401\_2ON**.
+This format is valid for every switch, from 1401 to 1408. 
 
+# Additional commands
+**/options** - For improving user experience and instead of typing the the socket code every time, we have added this command so that it returns a custom Telegram API keyboard that sends the socket code for you. It also displays commands  **/OURS\_ON|OFF**. 
+
+**/OURS\_ON|OFF - toggles all the sockets within the range. At this stage we impemented this for our own 1401\_2 and 1408\_3 sockets. 
+
+![Telegram Keyboard options](keyboard-options.png "keyboard options")
+
+## Implementation 
 The initial challenge in implementing Telegram Bot API was to decide how the updates in Telegram would be received by the unPhone. We decided to take a look at two solutions: using WebHooks to send HTTP requests directly to the unPhone and unPhone constantly polling the Telegram Bot API for updates.
 
- At first we looked at using WebHooks via IFTTT, where an event would be triggered on particular keywords whenever user types anything in their Telegram chat. From there, an HTTP request would be sent to a particular URL address with the keyword included. Finally, unPhone would verify the keyword and perfom an action accordingly. The problem was that we would need to have a domain accessible via Internet for each unPhone, which is not feasible for multiple IoT devices. That would also cause security issues, where anyone could send requests and see the device.
+At first we looked at using WebHooks via IFTTT, where an event would be triggered on particular keywords whenever user types anything in their Telegram chat. From there, an HTTP request would be sent to a particular URL address with the keyword included. Finally, unPhone would verify the keyword and perfom an action accordingly. The problem was that we would need to have a domain accessible via Internet for each unPhone, which is not feasible for multiple IoT devices. That would also cause additional security issues, where anyone could send requests and see the device.
 
-Because of the problems listed above, we decided to go with polling solution. Given a Telegram Bot API access token, we used Telegram Bot API library [UniversalTelegramBot](https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot) to call getUpdates(bot.last_message_received + 1) method every 2 seconds. For each new message received, our program checks the content of it - if it matches the hard-coded command, an appropriate method will be called to toggle a switch.
+Because of the problems listed above, we decided to go with polling solution. Given a Telegram Bot API access token, we used Telegram Bot API library [UniversalTelegramBot](https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot) to call getUpdates(bot.last_message_received + 1) method every 2 seconds. For each new message received, our program checks the content of it - if it matches a predefined String command, an appropriate method will be called to toggle a switch and respond if the command was received.
 
-For further features and improvements the following can be considered:
-* Include on/off commands for all switch codes. This would require refactoring of our current code, as for each command we could need to include two switch numbers: {4 digit code}-{0-3}{ON-OFF}. 
-* **ACTIVATE_ALL** and **DEACTVATE_ALL** commands that would turn on/off all switches in the range.
+## Battery and energy usage
+As our solution is meant to be used indoors for stationary power sockets, we are expecting that the users will position the unPhone in the same place with a constant power supply. Because of that, optimisations towards reducing the energy consumption wasn't the primarly focus, as it would create unnecessary difficulties in using the device where users would be prompted to recharge the unPhone from time to time, instead of plugging it in and positioning in a wide coverage area.
+
+The device still functions without the constant power supply thanks to the installed battery. The radio transmitter is running on 3.3V, so it uses less power if there is a need to use the unPhone unplugged for longer periods of time.
 
 ## Testing
 ### Website testing
@@ -74,10 +72,14 @@ For further features and improvements the following can be considered:
 ### Telegram testing
 | Test                                                                                    | Expected Outcome                                                                               | Actual Outcome                                                                                | Correct Result? |
 |-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-----------------|
-| When on the Telegram Bot, command **2_ON** turns on the switch                                | The unPhone should read the message and call a method plug2On() that turns on the 1401 2 switch                       | The unPhone correctly sends the radio signal and socket 1401 2 turns on                       | Yes             |
-| When on the Telegram Bot, command **2_OFF** turns on the switch                                | The unPhone should read the message and call a method plug2Off() that turns off the 1401 2 switch                       | The unPhone correctly sends the radio signal and socket 1401 2 turns off                       | Yes             |
-| When on the Telegram Bot, command **3_ON** turns on the switch                                | The unPhone should read the message and call a method plug2On() that turns on the 1408 3 switch                       | The unPhone correctly sends the radio signal and socket 1408 3 turns on                       | Yes             |
-| When on the Telegram Bot, command **3_OFF** turns on the switch                                | The unPhone should read the message and call a method plug2Off() that turns off the 1408 3 switch                       | The unPhone correctly sends the radio signal and socket 1408 3 turns off                       | Yes             |
+| When on the Telegram Bot, command **1401_2ON** turns on the switch                                | The unPhone should read the message and call a method plug2On() that turns on the 1401 2 switch                       | The unPhone correctly sends the radio signal and socket 1401 2 turns on                       | Yes             |
+| When on the Telegram Bot, command **1401_2OFF** turns on the switch                                | The unPhone should read the message and call a method plug2Off() that turns off the 1401 2 switch                       | The unPhone correctly sends the radio signal and socket 1401 2 turns off                       | Yes             |
+| When on the Telegram Bot, command **1408_3ON** turns on the switch                                | The unPhone should read the message and call a method plug2On() that turns on the 1408 3 switch                       | The unPhone correctly sends the radio signal and socket 1408 3 turns on                       | Yes             |
+| When on the Telegram Bot, command **1408_3OFF** turns on the switch                                | The unPhone should read the message and call a method plug2Off() that turns off the 1408 3 switch                       | The unPhone correctly sends the radio signal and socket 1408 3 turns off                       | Yes             |
+| When on the Telegram Bot, command **OURS_ON** turns on 1402_2 and 1408_3 switches                                | The unPhone should read the message and call a method toggleOurs(true) and send an ON signal for 1401_2 and 1408_3 sockets                        | The unPhone correctly sends the radio signals  and sockets 1401_2 and 1408_3 turn on.                       | Yes             |
+| When on the Telegram Bot, command **OURS_OFF** turns off 1402_2 and 1408_3 switches                                | The unPhone should read the message and call a method toggleOurs(false) and send an OFF signal for 1401_2 and 1408_3 sockets                        | The unPhone correctly sends the radio signals  and sockets 1401_2 and 1408_3 turn off.                       | Yes             |
+|
+
 
 ### Bugs 
 There is a bug in the WifiChz function which means that the unPhone cannot connect to any network with `'` apostrophes or `"` quote marks in the name. These symbols are acceptable for network names but a bug in the unPhone means it cannot connect. Originally, we thought this may be because the access point name was escaped in apostrophes, but even changing it to quote marks still led to errors when trying to connect to an access point with an apostrophe in the name. The easiest solution for this given the timescale was to simply change the access point name to remove the offending punctuation.
