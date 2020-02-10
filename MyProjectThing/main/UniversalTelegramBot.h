@@ -58,6 +58,8 @@ public:
                                   MoreDataAvailable moreDataAvailableCallback,
                                   GetNextByte getNextByteCallback);
 
+    void setToken(String token);
+    String getToken();
   bool getMe();
 
   bool sendSimpleMessage(String chat_id, String text, String parse_mode);

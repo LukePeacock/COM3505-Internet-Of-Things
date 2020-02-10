@@ -11,7 +11,8 @@
 
 int checkMessages();
 void handleNewMessages(int);
-void setTelegramApiKey(String);
+bool setTelegramApiKey(String);
 void resetTelegramApiKey();
+String getBotToken();
 
 #endif

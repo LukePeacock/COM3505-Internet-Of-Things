@@ -554,16 +554,19 @@ void hndlTelegramConfig(AsyncWebServerRequest *request) {
     
     String title = "<h2>Telegram API settings</h2>";
     String message = "";
-    String key = _TELEGRAM_API_KEY;
-    //setTelegramApiKey(key);
+    String key = getBotToken();
     message = "Current Key: " + key;
     
+    String f = "";
+    f += "<h2>Change API Key</h2><form method='POST' action='telegram_change' > ";
+    f += "<input type='text' name='key'>";
+    f += "<input type='submit' value='Submit'></form>";
     
     replacement_t repls[] = { // the elements to replace in the template
       { 1, apSSID.c_str() },
       { 7, title.c_str() },
       { 8, message.c_str()},
-      { 9, ""},
+      { 9, f.c_str()},
     };
     String htmlPage = "";     // a String to hold the resultant page
     GET_HTML(htmlPage, templatePage, repls);
@@ -586,15 +589,16 @@ void hndlTelegramChange(AsyncWebServerRequest *request) {
       if(request->argName(i) == "key")
         key = request->arg(i);
     }
-    setTelegramApiKey(key);
-    message = "Key Changed..";
-    
+    if (setTelegramApiKey(key))
+        message = "Key Changed...";
+    else
+        message = "Invalid Key. Key Reset...";
     
     replacement_t repls[] = { // the elements to replace in the template
       { 1, apSSID.c_str() },
       { 7, title.c_str() },
-      { 8, message.c_str()},
-      { 9, ""},
+      { 8, ""},
+      { 9, message.c_str()},
     };
     String htmlPage = "";     // a String to hold the resultant page
     GET_HTML(htmlPage, templatePage, repls);

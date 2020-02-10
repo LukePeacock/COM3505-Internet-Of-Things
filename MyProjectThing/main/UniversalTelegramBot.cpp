@@ -757,3 +757,21 @@ void UniversalTelegramBot::closeClient() {
     client->stop();
   }
 }
+
+/**
+* called from main::loop() every BOT_INTERVAL ms.
+* @return number of new messages. The number is used in handleNewMessages.
+* */
+void UniversalTelegramBot::setToken(String token)
+{
+    _token = token;
+}
+
+/**
+* called from main::loop() every BOT_INTERVAL ms.
+* @return number of new messages. The number is used in handleNewMessages.
+* */
+String UniversalTelegramBot::getToken()
+{
+    return _token;
+}
