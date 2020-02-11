@@ -75,7 +75,7 @@ void handleNewMessages(int numNewMessages)
       }
       else if (text == "options")
       {
-          bot.sendSimpleMessageWithReplyKeyboard(bot.messages[i].chat_id, "Choose from one of the following options", "", optionsJson, true);
+          bot.sendMessageWithReplyKeyboard(bot.messages[i].chat_id, "Choose from one of the following options", "", optionsJson, true);
       }
       else if(text.length() >= 8)
       {
