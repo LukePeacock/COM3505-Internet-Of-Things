@@ -16,22 +16,29 @@ Once the device starts, it will first try to connect to the last network, if the
 
 Once connected to a network, the device will launch its own web server on the network. The exact address of this will differ based on network, but will be displayed on the UnPhone display. Navigating to this web address will direct you to the home page. This page shows controls for both sockets, as well as a link to the wifi settings of the device, and a link to the telegram settings. 
 
+### Usage 
 To turn a socket on or off, select the corresponding button on the home page. If you want to turn both sockets on or off at the same time, select the option `all sockets`. 
 
 `Wifi Settings` allows you to see wifi status and/or change access point/network. 
+
+`Telegram Settings` allows you to see the current telegram API key and change it to a new key if required. This allows the user to change the API key on a device without needing to change the `private.h` file and reflash the device. This is useful for distributing the device as it allows users to change the API key to their own bot. If the user inputs a valid API key into the form, the device will update the key for the bot and check for a response from the telegram API. If a success response is received, the key will update. If the user inputs an invalid API key, then the device will attempt to update the key, get an invalid response from the telgram API and reset the key to the one stored in `private.h`.
+
+Allowing the user to change the API key means that the user has control of their API bot, which increases the security of the device. This prevents multiple people from being forced to use the same bot. An additional security feature which could be easily implemented is to have a password which must be entered before any command or changing the API key,  this would further improve the security of the system and prevent unauthorised access.
+
+The device contains some information on the LCD screen to assist the user including a warning about processing delay (due to the API). The user can use the buttons on the unPhone to turn the selected switch on or off, and use the third button to navigate switches. 
 
 ## Telegram API bot 
 Our solution provides functionality for toggling smart socket plugs using Telegram API bot. This works by creating your own Telegram Bot and assigning its authentication token to the _BOT_API_KEY in private.h. To use it, type in appropriate command in the bot chat, or if you have a group chat with bot included, add **/** prefix. 
 
 ## Commands
-In our program, we have implemented a functionallity of directly toggling any switch on or off, provided a command is of format: **/**{4 digit socket code}**\_**{1 digit socket index}{ON|OFF}.
+In our program, we have implemented a functionallity of directly toggling any switch on or off, provided a command is of format: **/{4 digit socket code}\_{1 digit socket index}{ON|OFF}**.
 Example: **/1401\_2ON**.
 This format is valid for every switch, from 1401 to 1408. 
 
 # Additional commands
 **/options** - For improving user experience and instead of typing the the socket code every time, we have added this command so that it returns a custom Telegram API keyboard that sends the socket code for you. It also displays commands  **/OURS\_ON|OFF**. 
 
-**/OURS\_ON|OFF - toggles all the sockets within the range. At this stage we impemented this for our own 1401\_2 and 1408\_3 sockets. 
+**/OURS\_ON|OFF** - toggles all the sockets within the range. At this stage we impemented this for our own 1401\_2 and 1408\_3 sockets. 
 
 ![Telegram Keyboard options](keyboard-options.png "keyboard options")
 
@@ -46,6 +53,9 @@ Because of the problems listed above, we decided to go with polling solution. Gi
 As our solution is meant to be used indoors for stationary power sockets, we are expecting that the users will position the unPhone in the same place with a constant power supply. Because of that, optimisations towards reducing the energy consumption wasn't the primarly focus, as it would create unnecessary difficulties in using the device where users would be prompted to recharge the unPhone from time to time, instead of plugging it in and positioning in a wide coverage area.
 
 The device still functions without the constant power supply thanks to the installed battery. The radio transmitter is running on 3.3V, so it uses less power if there is a need to use the unPhone unplugged for longer periods of time.
+
+## Provisioning and OTA Updates
+The current implementation does not automatically do OTA updates while running; OTA updating only occurs if the device is connected to a WiFi network and has an internet connection. However, the device checks the current firmware version number against the version number on gitlab each time it is reset; if they match then no action takes place. If they do not match, then the device will download the new firmware from gitlab and install it. The device will then reset itself to run the new firmware. This allows the device to be updated remotely to patch any security vulnerabilities. 
 
 ## Testing
 ### Website testing
@@ -78,7 +88,6 @@ The device still functions without the constant power supply thanks to the insta
 | When on the Telegram Bot, command **1408_3OFF** turns on the switch                                | The unPhone should read the message and call a method plug2Off() that turns off the 1408 3 switch                       | The unPhone correctly sends the radio signal and socket 1408 3 turns off                       | Yes             |
 | When on the Telegram Bot, command **OURS_ON** turns on 1402_2 and 1408_3 switches                                | The unPhone should read the message and call a method toggleOurs(true) and send an ON signal for 1401_2 and 1408_3 sockets                        | The unPhone correctly sends the radio signals  and sockets 1401_2 and 1408_3 turn on.                       | Yes             |
 | When on the Telegram Bot, command **OURS_OFF** turns off 1402_2 and 1408_3 switches                                | The unPhone should read the message and call a method toggleOurs(false) and send an OFF signal for 1401_2 and 1408_3 sockets                        | The unPhone correctly sends the radio signals  and sockets 1401_2 and 1408_3 turn off.                       | Yes             |
-|
 
 
 ### Bugs 
