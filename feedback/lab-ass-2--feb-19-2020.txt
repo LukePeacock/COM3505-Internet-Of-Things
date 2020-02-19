@@ -1,0 +1,202 @@
+Dear Luke Peacock,
+
+Here are your preliminary marks for COM3505 project lab assessment, based on your Git repo at
+https://gitlab.com/LukePeacock/com3505-2019-student/tree/62195faffaffa8ea993941a15ef41e9ae53cfb5b
+and your lab demo.
+
+Data indicates that your partner (if any) for this work was: Rokas Bagdonas.
+
+Below details of what we found in your docs and code, followed by a summary of some of the data points we have for your work.
+
+We have preliminarily evaluated your work to be first class (approx. 76.5%): that's really excellent work, well done!
+
+If you find anything factually incorrect (especially in relation to the Git commit number I've used, or who you were partnering with, please let me know ASAP.
+
+All the best,
+Hamish
+
+This is a solid project, good work! I particularly like the creative use of
+Telegram, and your mega state transition diagram :) (A few pictures and/or
+more diagrams wouldn't have gone amiss though.) Well done!
+
+Notes from your demo:
+
+1. Use messaging to control two remote power switches.
+2. The instruction is sent via telegram bot on the mobile phone. 
+3. The unphone visits the bot with an authentication token to get the order and then controls the remote switch state.
+
+We found good evidence of some or all of the following:
+
+- choice of viable project
+- base functionality and extensions
+- documentation
+  - exhibits understanding of the field
+  - comprehesive
+  - concise
+  - illustrations
+  - references
+  - clarity
+  - basic requirements
+  - enhancements made
+  - possible future enhancements
+  - specifics covered:
+    - how secure is the implementation?
+    - how efficient is the implementation?
+    - are there [m]any bugs?!
+    - how might it be improved?
+    - pseudocode for the main algorithm?
+- good code quality
+  - structure, readability, maintainability
+  - commenting and style
+  - interfaces minimal, simplicity maximal
+- process
+  - gitlab records
+  - GTA demo positive
+  - code and docs in the right places
+- testing
+  - documentation of appropriate testing
+  - implementation of testing
+  - data collection routines
+- teamwork
+
+
+
+Git data point summary:
+
+
+* 62195fa -  (HEAD -> master, origin/master, origin/HEAD) Updated docs to include more info on telegram (2020-02-11 12:19:27 +0000) <Luke Peacock>
+* 309f601 -  fixed telegram from spelling mistake (2020-02-11 09:08:47 +0000) <Luke Peacock>
+* a209206 -  added sketch changes to the main files (2020-02-10 12:31:34 +0000) <Luke Peacock>
+*   946d2f0 -  Merge branch 'master' into 'telegram' (2020-02-10 12:09:37 +0000) <Luke Peacock>
+|\  
+| * ef3017b -  Updated diagram for docs (2020-02-10 12:07:30 +0000) <Luke Peacock>
+| * 5153102 -  edits to telegram api change pages, and tests for it in docs (2020-02-07 19:54:00 +0000) <Luke Peacock>
+| * d7a0a7d -  Updated docs and telegram api page (2020-02-07 17:44:13 +0000) <Luke Peacock>
+| * 9839fd1 -  added form to change api key, along with edits to make it work (2020-02-07 17:31:01 +0000) <Luke Peacock>
+* | 6788b7e -  (origin/telegram) doc improvements (2020-02-10 12:02:33 +0000) <Rokas>
+* | c0df086 -  include keyboard options image (2020-02-08 16:48:24 +0000) <Rokas>
+* | 28755a7 -  documentation for commands (2020-02-08 16:31:33 +0000) <Rokas>
+* | c4c0de8 -  implement socket toggling via telegram keyboards options (2020-02-08 16:03:36 +0000) <Rokas>
+* | b615267 -  add telegram commands for all socket codes (2020-02-08 13:20:07 +0000) <Rokas>
+* | 224b385 -  in process of doing code map (2020-02-07 15:18:10 +0000) <Rokas>
+|/  
+* 734d1ef -  updates lcd message function to match the rest of the messages on the lcd dispaly - grey background, black text, and correct spacing (2020-01-23 20:48:15 +0000) <Luke Peacock>
+* defbe9b -  added comments to delay message function explaining it (2020-01-23 20:42:58 +0000) <Luke Peacock>
+* b9aeab3 -  added message about delay between buttons and response (2020-01-23 20:42:03 +0000) <Luke Peacock>
+* 3677062 -  changes main message color to black with grey bg (2020-01-23 20:36:43 +0000) <Luke Peacock>
+* 2a103d1 -  button labels update when chosen socket changes (2020-01-23 20:36:19 +0000) <Luke Peacock>
+* 7847ec7 -  added labels to each of the buttons to explain their purpose (2020-01-23 20:35:59 +0000) <Luke Peacock>
+* f665ef0 -  Added default response each time messages are processed (2020-01-23 17:12:09 +0000) <Luke Peacock>
+* 16637b8 -  Added bot replies for some messages - more to be added later (2020-01-23 17:08:04 +0000) <Luke Peacock>
+* cd09847 -  Added new page showing telegram API key, and got bot to respond with message about some commands (2020-01-23 17:06:18 +0000) <Luke Peacock>
+* 359400c -  3rd button toggles sockets, text now reversed? (working on a fix) (2020-01-08 17:45:28 +0000) <Luke Peacock>
+* 9721ca4 -  added OTA firmware version 2 (2020-01-08 16:41:45 +0000) <Luke Peacock>
+*   50dc1f8 -  Merge branch 'telegram' into 'master' (2020-01-08 15:36:37 +0000) <Luke Peacock>
+|\  
+| * 5298b07 -  temp updates (2020-01-08 15:35:00 +0000) <Luke Peacock>
+| * b1135b9 -  add documentation: Telegram section and testing (2020-01-05 18:50:55 +0000) <Rokas>
+| * 4eddfed -  fix numNewMessages to accept commands with / (2020-01-04 18:38:50 +0000) <Rokas>
+| * 5832a34 -  add comments and clean up (2020-01-04 17:10:17 +0000) <Rokas>
+| * 4fab310 -  remove debugging statements (2020-01-01 18:12:22 +0000) <Rokas>
+| * eee2601 -  implement telegram bot functionality for toggling sockets (2020-01-01 14:08:55 +0000) <Rokas>
+| * b01b4b4 -  rename transmitor to transmitter (2020-01-01 13:39:51 +0000) <Rokas>
+| * e13f7aa -  refactor radio transmitor to have a separate class (2020-01-01 13:20:49 +0000) <Rokas>
+| * f9109dc -  setup for Telegram API Bot (2020-01-01 12:32:00 +0000) <Rokas>
+| * 4a657d7 -  replace joinme-2019 with unPhone libs. (2019-12-30 19:13:39 +0000) <Rokas>
+|/  
+* b99169e -  added one liner about function details and code comments to readme (2019-12-23 19:26:23 +0000) <Luke Peacock>
+* 2c58474 -  added comments to functions in main.cpp (2019-12-23 19:25:18 +0000) <Luke Peacock>
+* cce7e34 -  added bug comment to docs about network names (2019-12-19 16:44:21 +0000) <Luke Peacock>
+* 409a21c -  added user instructions to the docs (2019-12-19 16:36:54 +0000) <Luke Peacock>
+* 3fe428b -  added some tests and the startup/loop state diagram to docs (2019-12-19 16:27:45 +0000) <Luke Peacock>
+* fe53298 -  added functionality to control both switches simultaneously (2019-12-18 15:42:16 +0000) <Luke Peacock>
+* f5db168 -  added option to turn switch 1401 2 on/off, original was 1408 3 (2019-12-18 15:13:01 +0000) <Luke Peacock>
+* 42ee55a -  updates to main.cpp to include buttons allowing the socket to be turned on and off easily, also a few changes to wifi urls (2019-12-17 16:28:15 +0000) <Luke Peacock>
+* 98ef1be -  added wifi manager files and create access point, modified setupUnPhone to point to new location (2019-12-15 19:03:11 +0000) <Luke Peacock>
+* c31a2d5 -  updates to main to allow power socket switching using unphone buttons (2019-12-15 15:24:00 +0000) <Luke Peacock>
+* a782b99 -  added OTA firmware version 57 (2019-11-12 14:04:48 +0000) <Luke Peacock>
+* 6df966f -  firmware (2019-11-12 14:04:33 +0000) <Luke Peacock>
+* 1a93265 -  added OTA firmware version 56 (2019-11-12 14:01:34 +0000) <Luke Peacock>
+*   1f778a5 -  Merge branch 'master' of https://gitlab.com/LukePeacock/com3505-2019-student (2019-11-12 14:01:14 +0000) <Luke Peacock>
+|\  
+* | 9f9593b -  firmware update (2019-11-12 14:00:56 +0000) <Luke Peacock>
+|/  
+* 79fe18b -  updated pseudo in docs| (2019-11-11 08:50:58 +0000) <Luke Peacock>
+*   86a9557 -  Merge branch 'rokas' into 'master' (2019-11-11 08:41:06 +0000) <Luke Peacock>
+|\  
+| *   3a70e36 -  (origin/rokas) Merge branch 'master' into 'rokas' (2019-11-11 08:26:04 +0000) <Rokas>
+| |\  
+| * | ac3dcbd -  add pseudo code algorithm for the setup and loop (2019-11-11 08:20:59 +0000) <Rokas>
+| * | 6ed709e -  add OTA update using IDF API paragraph (2019-11-11 08:00:12 +0000) <Rokas>
+| * | 1f5fd5a -  add minor changes and rephrase current documentation (2019-11-11 07:22:00 +0000) <Rokas>
+* | | c4ca9af -  updated main to fix some bugs, and edited readme to include touch sensor pin number (2019-11-11 08:37:09 +0000) <Luke Peacock>
+* | | 395876d -  added OTA firmware version 54 (2019-11-11 08:28:38 +0000) <Luke Peacock>
+* | | 8d628c7 -  updated main firmware numbre (2019-11-11 08:19:06 +0000) <Luke Peacock>
+| |/  
+|/|   
+* | 4cffc15 -  moved touch sensor stuff round, updated doc to reflect change (2019-11-11 08:17:40 +0000) <Luke Peacock>
+|/  
+* ba7971e -  added programming styles to doc (2019-11-08 14:57:04 +0000) <Luke Peacock>
+* 64b1597 -  documented changes to code (2019-11-08 13:54:03 +0000) <Luke Peacock>
+* 1ffccf8 -  set up certificates for ESP IDF OTA API (2019-11-08 13:41:56 +0000) <Luke Peacock>
+* 3762c2e -  more questions answered (2019-11-05 16:28:07 +0000) <Luke Peacock>
+* ca41dd7 -  adding some more information to doc readme (2019-11-05 15:40:19 +0000) <Luke Peacock>
+* 5448ae1 -  adding some more information to doc readme (2019-11-05 15:37:26 +0000) <Luke Peacock>
+* e458279 -  added OTA firmware version 53 (2019-11-05 15:12:30 +0000) <Luke Peacock>
+* 06506f9 -  removed ap scan during setup (2019-11-05 14:58:19 +0000) <Luke Peacock>
+* 199d434 -  small changes to main.cpp (2019-11-05 14:50:16 +0000) <Luke Peacock>
+* 15bf271 -  added OTA firmware version 52 (2019-11-05 14:35:39 +0000) <Luke Peacock>
+*   3a6d6fa -  Merge branch 'master' of https://gitlab.com/LukePeacock/com3505-2019-student (2019-11-05 14:30:08 +0000) <Luke Peacock>
+|\  
+* | 342195e -  updated firmware| (2019-11-05 14:29:45 +0000) <Luke Peacock>
+|/  
+* 4338f71 -  added nee headings to enhancement section of docs (2019-10-30 16:08:07 +0000) <Luke Peacock>
+* b27020d -  added OTA firmware version 51 (2019-10-30 15:58:27 +0000) <Luke Peacock>
+* 9ad95b8 -  fixing same bug again (2019-10-30 15:58:01 +0000) <Luke Peacock>
+* bf046f5 -  error with reading touch value (2019-10-30 15:57:11 +0000) <Luke Peacock>
+* 6b7f784 -  added touch sensor patch to setup function too (2019-10-30 15:56:19 +0000) <Luke Peacock>
+* 28d4977 -  updaetd firmware version num (2019-10-30 15:53:38 +0000) <Luke Peacock>
+* 1610115 -  OTA loop only occurs if touch sensor begin touched (2019-10-30 15:53:19 +0000) <Luke Peacock>
+* 4d5af2c -  added OTA firmware version 49 (2019-10-30 15:43:17 +0000) <Luke Peacock>
+* e77dd00 -  mistake in println replaced with printf (2019-10-30 15:42:53 +0000) <Luke Peacock>
+* 7794cce -  changes to touch sensor log in loop to only register touch if value lower than 400 (2019-10-30 15:34:19 +0000) <Luke Peacock>
+* 45c9e37 -  added OTA firmware version 48 (2019-10-30 15:24:11 +0000) <Luke Peacock>
+* 1dfb13e -  trivial change to test version was updated (2019-10-30 15:23:49 +0000) <Luke Peacock>
+* 9332e3d -  added OTA firmware version 47 (2019-10-30 15:21:33 +0000) <Luke Peacock>
+* 2501bf5 -  updated main firmwareversion (2019-10-30 15:20:45 +0000) <Luke Peacock>
+* 9da7313 -  added OTA firmware version 46 (2019-10-30 15:18:43 +0000) <Luke Peacock>
+* d8a9f2f -  fixes for touch sensor setup (2019-10-30 15:18:24 +0000) <Luke Peacock>
+* b1ddc3e -  fixes (2019-10-30 15:17:44 +0000) <Luke Peacock>
+* 636fae7 -  fixes (2019-10-30 15:10:07 +0000) <Luke Peacock>
+* c203f85 -  fixes (2019-10-30 15:09:21 +0000) <Luke Peacock>
+* 9dd9603 -  fixes (2019-10-30 15:07:59 +0000) <Luke Peacock>
+* 93975eb -  fixes (2019-10-30 15:06:34 +0000) <Luke Peacock>
+* 907a4ad -  missing variables (2019-10-30 15:05:23 +0000) <Luke Peacock>
+* 1c78aeb -  starting touch sensor work (2019-10-30 15:03:46 +0000) <Luke Peacock>
+* 7bd9b20 -  updated docs/readme (2019-10-30 14:51:33 +0000) <Luke Peacock>
+* e796a7f -  added OTA firmware version 46 (2019-10-30 14:06:41 +0000) <Luke Peacock>
+* 4a6d540 -  commented code to theoretically fix OTA update loop (2019-10-30 14:06:27 +0000) <Luke Peacock>
+* ee938a8 -  added OTA firmware version 47 (2019-10-30 13:57:23 +0000) <Luke Peacock>
+* 2afc97e -  trivial change testing OTA still (2019-10-30 13:57:09 +0000) <Luke Peacock>
+* b914706 -  added OTA firmware version 46 (2019-10-30 13:53:34 +0000) <Luke Peacock>
+* 3449970 -  added OTA firmware version 45 (2019-10-30 13:47:13 +0000) <Luke Peacock>
+* 2eb4a79 -  added OTA firmware version 45 (2019-10-30 13:43:57 +0000) <Luke Peacock>
+* 600a0cc -  trivial change to test OTA (2019-10-30 13:43:41 +0000) <Luke Peacock>
+* a1e2118 -  removed DS_STORE (2019-10-30 10:40:08 +0000) <Luke Peacock>
+* 2b5ff54 -  script for setting IDF_PATH and PATH variables (2019-10-30 10:39:33 +0000) <Luke Peacock>
+* 5fb7bba -  trivial change testing OTA (2019-10-30 10:32:13 +0000) <Luke Peacock>
+* 171c24f -  added OTA firmware version 44 (2019-10-30 10:29:51 +0000) <Luke Peacock>
+* cb39469 -  trivial update firmware to test OTA (2019-10-30 10:29:00 +0000) <Luke Peacock>
+* 1662b99 -  added OTA firmware version 43 (2019-10-30 10:27:21 +0000) <Luke Peacock>
+* 68b7dae -  rough documentation notes added (2019-10-29 21:48:10 +0000) <Luke Peacock>
+* 421557d -  new files for exercise 7 (2019-10-22 15:37:00 +0100) <Luke Peacock>
+*   72aff68 -  Merge branch 'master' of https://gitlab.com/LukePeacock/com3505-2019-student (2019-10-22 15:36:20 +0100) <Luke Peacock>
+|\  
+* | ab0719e -  finished week 3 exercise 6 (2019-10-22 15:17:37 +0100) <Luke Peacock>
+|/  
+* f5e0c50 -  Week 2 labs Ex 3,5,6 (2019-10-21 13:25:53 +0100) <Luke Peacock>
+* 9a195f7 -  completed week 2 Lab exercises (2019-10-08 18:03:27 +0100) <Luke Peacock>
+* a607b17 -  Update pair.txt (2019-10-01 13:14:25 +0000) <Luke Peacock>
+* 76534a2 -  Added pair.txt (2019-10-01 13:13:48 +0000) <Luke Peacock>
+* 79d0dfe -  Initial commit (2019-09-27 20:33:03 +0000) <Luke Peacock>
+
